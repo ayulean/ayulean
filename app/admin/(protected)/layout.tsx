@@ -23,8 +23,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!(await isAdmin())) redirect("/admin/login");
 
   return (
-    <div className="flex min-h-screen flex-col bg-brand-50/40 lg:flex-row">
-      <aside className="border-b border-brand-100 bg-white lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
+    <div className="flex min-h-screen flex-col bg-brand-50/40 print:block print:bg-white lg:flex-row">
+      <aside className="border-b border-brand-100 bg-white print:hidden lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
         <div className="flex items-center gap-2.5 p-5">
           <Image
             src={SITE.logo}
@@ -70,9 +70,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </aside>
 
-      <main className="flex-1 p-5 lg:p-8">
+      <main className="flex-1 p-5 print:p-0 lg:p-8">
         {children}
-        <form action={logoutAction} className="mt-10 lg:hidden">
+        <form action={logoutAction} className="mt-10 print:hidden lg:hidden">
           <button type="submit" className="text-sm font-medium text-red-600">🚪 Logout</button>
         </form>
       </main>

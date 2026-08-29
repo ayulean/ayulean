@@ -18,7 +18,7 @@ export function Invoice({ order }: { order: Order }) {
   const tax = netOfDiscount - taxable;
 
   return (
-    <div className="mx-auto max-w-3xl bg-white p-8 text-ink print:p-0">
+    <div className="print-sheet mx-auto max-w-3xl bg-white p-8 text-ink print:p-0">
       <PrintButton />
 
       <header className="flex flex-wrap items-start justify-between gap-4 border-b border-brand-100 pb-6">

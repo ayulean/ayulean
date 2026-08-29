@@ -2,7 +2,7 @@
 
 export function PrintButton() {
   return (
-    <div className="mb-6 flex gap-3 print:hidden">
+    <div className="no-print mb-6 flex gap-3 print:hidden">
       <button
         type="button"
         onClick={() => window.print()}

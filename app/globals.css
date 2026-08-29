@@ -63,3 +63,63 @@ body {
 input, select, textarea {
   font: inherit;
 }
+
+/* ---------------------------------------------------------------------------
+   Print
+   Only the invoice should reach the paper (or the PDF). Site chrome — the
+   announcement bar, header, footer and admin sidebar — is hidden, backgrounds
+   are dropped so nothing wastes ink, and links stop printing their URLs.
+   --------------------------------------------------------------------------- */
+
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* Anything marked no-print, plus the site chrome, disappears. */
+  .no-print,
+  body > header,
+  body > footer,
+  body > nav {
+    display: none !important;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Flat on paper: no shadows, no rounded cards, no tinted panels. */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  .print-sheet {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+  }
+
+  /* Keep the invoice table from splitting a row across two pages. */
+  tr,
+  img,
+  figure {
+    break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  a[href]::after {
+    content: "" !important;
+  }
+}

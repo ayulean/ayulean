@@ -22,7 +22,7 @@ export function Header({ userName }: { userName: string | null }) {
 
   return (
     <>
-      <div className="bg-brand-700 text-white text-xs sm:text-sm">
+      <div className="bg-brand-700 text-white text-xs sm:text-sm print:hidden">
         <div className="container-x flex items-center justify-center gap-2 py-2 text-center">
           <span className="hidden sm:inline">🌿</span>
           <span>
@@ -32,7 +32,7 @@ export function Header({ userName }: { userName: string | null }) {
         </div>
       </div>
 
-      <header className="sticky top-0 z-50 border-b border-brand-100 bg-white/95 backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-brand-100 bg-white/95 backdrop-blur print:hidden">
         <div className="container-x flex h-16 items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2.5">
             <Image
