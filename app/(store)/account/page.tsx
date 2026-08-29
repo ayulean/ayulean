@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import AccountsDisabled from "@/components/account/AccountsDisabled";
 import PasswordForm from "@/components/account/PasswordForm";
 import { saveProfileAction, signOutAction } from "@/lib/account-actions";
-import { accountsEnabled, currentProfile, currentUser, displayName } from "@/lib/auth-customer";
+import { accountsEnabled, currentProfile, currentUser, fullName } from "@/lib/auth-customer";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +29,8 @@ export default async function AccountPage({ searchParams }: PageProps<"/account"
 
   const sp = await searchParams;
   const profile = await currentProfile();
+  const name = fullName(user, profile);
+  const hasName = Boolean(profile?.full_name?.trim());
 
   // Google accounts have no password of their own to change.
   const hasPassword = user.app_metadata?.providers?.includes("email") ?? user.app_metadata?.provider === "email";
@@ -38,7 +40,7 @@ export default async function AccountPage({ searchParams }: PageProps<"/account"
       <div className="mx-auto max-w-3xl">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="font-display text-3xl font-bold text-brand-900">Hi {displayName(user)}</h1>
+            <h1 className="font-display text-3xl font-bold text-brand-900">Hi {name}</h1>
             <p className="mt-1 text-sm text-ink/55">{user.email}</p>
           </div>
           <div className="flex gap-3">
@@ -67,11 +69,22 @@ export default async function AccountPage({ searchParams }: PageProps<"/account"
           <h2 className="font-display text-xl font-bold text-brand-800">Delivery details</h2>
           <p className="mt-1 text-sm text-ink/55">Saved here so checkout fills itself in next time.</p>
 
+          {!hasName && (
+            <p className="mt-4 rounded-lg bg-cream p-3 text-sm text-ink/65">
+              Add your full name below — it goes on your invoices and delivery labels.
+            </p>
+          )}
+
           <form action={saveProfileAction} className="mt-5">
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="text-sm font-medium">
                 Full name
-                <input name="full_name" defaultValue={profile?.full_name} className={field} />
+                <input
+                  name="full_name"
+                  defaultValue={profile?.full_name || fullName(user)}
+                  autoComplete="name"
+                  className={field}
+                />
               </label>
               <label className="text-sm font-medium">
                 Mobile number

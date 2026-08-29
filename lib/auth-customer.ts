@@ -66,10 +66,25 @@ export async function currentProfile(): Promise<Profile | null> {
   return (data as Profile | null) ?? { id: user.id, full_name: "", phone: "", address: "", city: "", state: "", pincode: "" };
 }
 
-/** A friendly display name for the header. */
-export function displayName(user: User): string {
+/**
+ * The customer's full name.
+ *
+ * The profile is the source of truth, because that is the form the customer
+ * actually edits. Sign-up metadata (or the name Google gave us) is the
+ * fallback, and the email prefix is the last resort.
+ */
+export function fullName(user: User, profile?: Profile | null): string {
+  const fromProfile = (profile?.full_name ?? "").trim();
+  if (fromProfile) return fromProfile;
+
   const meta = user.user_metadata ?? {};
-  const name = (meta.full_name || meta.name || "") as string;
-  if (name.trim()) return name.trim().split(" ")[0];
-  return user.email?.split("@")[0] ?? "Account";
+  const fromMeta = String(meta.full_name || meta.name || "").trim();
+  if (fromMeta) return fromMeta;
+
+  return user.email?.split("@")[0] ?? "there";
+}
+
+/** Just the first name — used where space is tight, like the header. */
+export function displayName(user: User, profile?: Profile | null): string {
+  return fullName(user, profile).split(" ")[0];
 }
