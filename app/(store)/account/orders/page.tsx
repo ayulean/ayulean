@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import AccountsDisabled from "@/components/account/AccountsDisabled";
+import CancelOrderButton from "@/components/CancelOrderButton";
 import { accountsEnabled, currentUser, customerClient } from "@/lib/auth-customer";
+import { canCancel } from "@/lib/orders";
 import { money } from "@/lib/pricing";
 import { SITE } from "@/lib/site";
 import type { Order } from "@/lib/types";
@@ -76,9 +78,12 @@ export default async function MyOrdersPage() {
                   </p>
                 )}
 
-                <div className="mt-4 flex flex-wrap gap-3 text-sm">
+                <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
                   <Link href={`/order/${o.order_no}`} className="text-brand-700 hover:underline">
                     View details
+                  </Link>
+                  <Link href={`/order/${o.order_no}/invoice`} className="text-brand-700 hover:underline">
+                    Invoice
                   </Link>
                   <Link href={`/replacement?orderNo=${o.order_no}`} className="text-brand-700 hover:underline">
                     Request a replacement
@@ -91,6 +96,7 @@ export default async function MyOrdersPage() {
                   >
                     Get help
                   </a>
+                  {canCancel(o.status) && <CancelOrderButton orderNo={o.order_no} />}
                 </div>
               </article>
             ))}

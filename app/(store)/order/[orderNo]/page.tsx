@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import CancelOrderButton from "@/components/CancelOrderButton";
 import { TrackPurchase } from "@/components/TrackEvent";
 import { money } from "@/lib/pricing";
+import { canCancel } from "@/lib/orders";
 import { getOrderByNo } from "@/lib/queries";
 import { SITE } from "@/lib/site";
 
@@ -17,6 +19,7 @@ export default async function OrderPage({ params }: PageProps<"/order/[orderNo]"
 
   const items = order.items;
   const paid = order.payment_status === "paid";
+  const cancellable = canCancel(order.status);
 
   return (
     <div className="container-x py-14">
@@ -94,7 +97,28 @@ export default async function OrderPage({ params }: PageProps<"/order/[orderNo]"
           </p>
         </div>
 
+        {order.status === "cancelled" && (
+          <p className="mt-8 rounded-xl bg-red-50 p-4 text-center text-sm text-red-700">
+            This order was cancelled{order.cancelled_at ? ` on ${new Date(order.cancelled_at).toLocaleDateString("en-IN")}` : ""}.
+            {order.payment_method === "online" && order.payment_status === "paid"
+              ? " Your refund will reach the original payment method within 5–7 working days."
+              : ""}
+          </p>
+        )}
+
+        {cancellable && (
+          <div className="mt-8 flex justify-center">
+            <CancelOrderButton orderNo={order.order_no} />
+          </div>
+        )}
+
         <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link
+            href={`/order/${order.order_no}/invoice`}
+            className="rounded-full border-2 border-brand-600 px-6 py-3 font-semibold text-brand-700 hover:bg-brand-50"
+          >
+            Download invoice
+          </Link>
           <Link href="/track" className="rounded-full border-2 border-brand-600 px-6 py-3 font-semibold text-brand-700 hover:bg-brand-50">
             Track your order
           </Link>

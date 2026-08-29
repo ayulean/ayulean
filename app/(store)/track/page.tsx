@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import CancelOrderButton from "@/components/CancelOrderButton";
+import { canCancel } from "@/lib/orders";
 import { money } from "@/lib/pricing";
 import { getOrderByNo } from "@/lib/queries";
 import { SITE } from "@/lib/site";
@@ -112,6 +114,12 @@ export default async function TrackPage({ searchParams }: PageProps<"/track">) {
 
             <div className="mt-5 flex flex-wrap gap-3">
               <Link
+                href={`/order/${matched.order_no}/invoice?phone=${encodeURIComponent(phone)}`}
+                className="rounded-full border-2 border-brand-600 px-5 py-2.5 text-sm font-semibold text-brand-700 hover:bg-brand-50"
+              >
+                Download invoice
+              </Link>
+              <Link
                 href={`/replacement?orderNo=${matched.order_no}`}
                 className="rounded-full border-2 border-brand-600 px-5 py-2.5 text-sm font-semibold text-brand-700 hover:bg-brand-50"
               >
@@ -126,6 +134,19 @@ export default async function TrackPage({ searchParams }: PageProps<"/track">) {
                 Get help on WhatsApp
               </a>
             </div>
+
+            {canCancel(matched.status) && (
+              <div className="mt-5">
+                <CancelOrderButton orderNo={matched.order_no} phone={phone} />
+              </div>
+            )}
+
+            {matched.status === "cancelled" && (
+              <p className="mt-5 rounded-xl bg-red-50 p-4 text-sm text-red-700">
+                This order was cancelled
+                {matched.cancelled_at ? ` on ${new Date(matched.cancelled_at).toLocaleDateString("en-IN")}` : ""}.
+              </p>
+            )}
           </div>
         )}
       </div>

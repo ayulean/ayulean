@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { ADMIN_PASSWORD, clearAdminCookie, isAdmin, setAdminCookie } from "./auth";
 import { parseBundleItems } from "./bundle";
 import { sendShippingUpdate } from "./notify";
-import { releaseOrderStock, reserveOrderStock } from "./orders";
+import { cancelOrder, releaseOrderStock, reserveOrderStock } from "./orders";
 import { getOrderByNo } from "./queries";
 import { db, unwrap } from "./supabase";
 
@@ -263,6 +263,8 @@ export async function updateOrderAction(formData: FormData) {
   // Cancelling puts stock and coupon usage back; un-cancelling takes them again.
   // Both RPCs are no-ops if the order is already in that state.
   if (status === "cancelled" && before.status !== "cancelled") {
+    // Admins may cancel from any status — a shipped parcel can still be recalled.
+    await db().from("orders").update({ cancelled_at: new Date().toISOString(), cancelled_by: "admin" }).eq("id", id);
     await releaseOrderStock(orderNo);
   } else if (status !== "cancelled" && before.status === "cancelled") {
     await reserveOrderStock(orderNo);

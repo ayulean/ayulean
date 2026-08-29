@@ -108,6 +108,9 @@ export type Order = {
   stock_reserved: boolean;
   tracking_number: string;
   courier: string;
+  cancelled_at: string | null;
+  cancel_reason: string;
+  cancelled_by: string;
   created_at: string;
 };
 

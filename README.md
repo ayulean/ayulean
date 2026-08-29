@@ -21,6 +21,8 @@ full admin panel where you can add more products, prices, discounts and coupons 
    - [`supabase/migrations/003_bundles.sql`](supabase/migrations/003_bundles.sql) — combo products.
    - [`supabase/migrations/004_customer_accounts.sql`](supabase/migrations/004_customer_accounts.sql) —
      customer accounts, profiles and per-customer order access.
+   - [`supabase/migrations/005_order_cancellation.sql`](supabase/migrations/005_order_cancellation.sql) —
+     customer-initiated order cancellation.
 3. Go to **Project Settings → API** and copy the **Project URL** and the **`service_role`** key.
 
 ### Step 2 — run the app
@@ -249,6 +251,27 @@ switched off entirely and checkout stays open to everyone.
 Customer pages use the **anon** key, so every query runs under row level security: the policies in
 migration 004 let a customer read and edit only their own profile, and read only their own orders.
 Nothing else in the database is reachable from a browser.
+
+---
+
+## 4d. Invoices and cancellation
+
+**Invoice.** Every customer can open their own invoice at `/order/<orderNo>/invoice` and print it or
+save it as a PDF. Access needs proof of ownership: either they are signed in to the account that
+placed the order, or the URL carries the phone number the order was placed with (this is how the
+Track Order page links to it). Anyone else gets a polite refusal, not the invoice.
+
+**Cancellation.** A customer can cancel while the order is still `placed`, `confirmed` or
+`pending_payment`. Once it is marked **shipped** the button disappears and the API refuses, because
+the parcel is already with the courier.
+
+The rule is enforced inside Postgres, not just in the app. `cancel_order()` takes a row lock, checks
+the status, and updates in the same transaction — so if a customer taps Cancel at the exact moment
+the admin marks the order shipped, one of the two wins cleanly and the other is told what happened.
+Cancelling puts the stock and coupon usage back automatically.
+
+Admins can still cancel from any status in the admin panel — a shipped parcel can be recalled by
+phone. Cancellations record who did it and why.
 
 ---
 
