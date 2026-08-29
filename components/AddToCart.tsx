@@ -48,7 +48,7 @@ export function AddToCart({ product }: { product: Product }) {
           {out
             ? "Currently out of stock"
             : product.isBundle
-              ? `${product.available} combos available`
+              ? `${product.available} combo${product.available === 1 ? "" : "s"} available`
               : `${product.available} in stock`}
         </span>
       </div>
