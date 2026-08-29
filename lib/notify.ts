@@ -5,6 +5,8 @@ import type { Order } from "./types";
 const RESEND_API_KEY = process.env.RESEND_API_KEY ?? "";
 const FROM = process.env.ORDER_FROM_EMAIL || "AyuLean <onboarding@resend.dev>";
 const ADMIN_EMAIL = process.env.ORDER_NOTIFY_EMAIL ?? "";
+/** Replies to any order email land here, whatever the technical sender is. */
+const REPLY_TO = process.env.ORDER_REPLY_TO || SITE.email;
 
 /** True once a Resend API key is present. Without it, emails are only logged. */
 export const emailEnabled = Boolean(RESEND_API_KEY);
@@ -22,7 +24,7 @@ async function send(to: string, subject: string, html: string) {
         Authorization: `Bearer ${RESEND_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+      body: JSON.stringify({ from: FROM, to: [to], subject, html, reply_to: REPLY_TO }),
     });
 
     if (!res.ok) console.error("Email send failed", res.status, await res.text());

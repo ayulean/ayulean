@@ -63,7 +63,8 @@ Set these in `.env.local` (already created) — `.env.example` is the reference:
 | `RAZORPAY_KEY_ID` | Razorpay Key ID (for online payment) |
 | `RAZORPAY_KEY_SECRET` | Razorpay Key Secret |
 | `RESEND_API_KEY` | Resend key for order emails. Empty = emails are only logged |
-| `ORDER_FROM_EMAIL` | Sender shown on order emails |
+| `ORDER_FROM_EMAIL` | Sender address — **must be on a domain verified in Resend** |
+| `ORDER_REPLY_TO` | Where customer replies go — a Gmail address is fine here |
 | `ORDER_NOTIFY_EMAIL` | Where new-order alerts are sent to you |
 | `NEXT_PUBLIC_SITE_URL` | Public URL, used for the sitemap, canonical links and OG tags |
 | `NEXT_PUBLIC_GSTIN` | Your GSTIN, printed on invoices |
@@ -127,8 +128,23 @@ Order confirmations (to the customer), new-order alerts (to you) and shipping up
 through [Resend](https://resend.com). Set `RESEND_API_KEY` and `ORDER_NOTIFY_EMAIL` to switch them
 on — until then every email is written to the server console instead, so nothing breaks.
 
-For production, verify your own domain in Resend and change `ORDER_FROM_EMAIL` to an address on
-that domain; the default `onboarding@resend.dev` is only meant for testing.
+### About the sender address
+
+Email providers only let you send **from** a domain you control and have authenticated with DKIM
+and SPF records. That means a `gmail.com` address cannot be the sender — Gmail's own servers would
+reject it as spoofing. So:
+
+- `ORDER_FROM_EMAIL` must be on a domain verified in Resend (e.g. `orders@ayulean.in`). Until you
+  have one, keep Resend's test sender `onboarding@resend.dev` — the display name is still yours,
+  so it shows as "AyuLean".
+- `ORDER_REPLY_TO` is set to `ayuleanveda@gmail.com`, so when a customer hits Reply the message
+  lands in that Gmail inbox regardless of the technical sender.
+- `ORDER_NOTIFY_EMAIL` is also `ayuleanveda@gmail.com` — every new order alert goes there.
+
+**Important limit while using the test sender:** Resend only delivers to the email address that
+owns the account. So new-order alerts to `ayuleanveda@gmail.com` will arrive, but customer
+confirmation emails will not go out until you verify a domain (Resend → Domains → Add domain, then
+add the DNS records at your registrar).
 
 ---
 
