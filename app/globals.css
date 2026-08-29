@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50:  #f2f9f1;
+  --color-brand-100: #e0f0dd;
+  --color-brand-200: #c2e1bd;
+  --color-brand-300: #96ca8f;
+  --color-brand-400: #64ac5c;
+  --color-brand-500: #3f8c39;
+  --color-brand-600: #2f6f2b;
+  --color-brand-700: #275824;
+  --color-brand-800: #21471f;
+  --color-brand-900: #1c3b1b;
+
+  --color-gold-400: #e0b455;
+  --color-gold-500: #c99a33;
+  --color-gold-600: #a87c22;
+
+  --color-cream: #fdfaf3;
+  --color-ink: #1b2318;
+
+  --font-sans: var(--font-sans-custom), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-custom), Georgia, serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #ffffff;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* utilities */
+.container-x {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 768px) {
+  .container-x { padding-inline: 2rem; }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 26s linear infinite;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+}
+
+input, select, textarea {
+  font: inherit;
+}
