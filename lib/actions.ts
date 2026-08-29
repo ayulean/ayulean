@@ -127,8 +127,13 @@ export async function deleteProductAction(formData: FormData) {
   const id = Number(formData.get("id") ?? 0);
   if (id) {
     // Deleting a product that a combo depends on would silently break that combo.
+    // `.contains()` serialises the array in a way PostgREST rejects on jsonb, so
+    // the containment operator is passed explicitly with a JSON string.
     const usedIn = unwrap<Array<{ name: string }>>(
-      await db().from("products").select("name").contains("bundle_items", [{ productId: id }]),
+      await db()
+        .from("products")
+        .select("name")
+        .filter("bundle_items", "cs", JSON.stringify([{ productId: id }])),
       "Failed to check combos"
     );
     if (usedIn.length > 0) {
