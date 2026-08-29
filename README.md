@@ -128,6 +128,34 @@ Order confirmations (to the customer), new-order alerts (to you) and shipping up
 through [Resend](https://resend.com). Set `RESEND_API_KEY` and `ORDER_NOTIFY_EMAIL` to switch them
 on — until then every email is written to the server console instead, so nothing breaks.
 
+### Finishing the Resend setup (pending — needs a domain)
+
+Marketplace terms are already accepted for the `ayuleanveda-6902` team. The install stops at one
+step because Resend needs a sending domain up front:
+
+```
+Error: Missing required metadata: domain, region.
+```
+
+Once you own a domain, run this from the project root:
+
+```bash
+vercel integration add resend/resend-email -m domain=yourdomain.in -m region=us-east-1 --format=json
+vercel env pull --yes          # pulls the provisioned RESEND_API_KEY
+```
+
+Then in the Resend dashboard, copy the DKIM/SPF records it shows and add them at your domain
+registrar. When the domain shows **Verified**, set the sender and redeploy:
+
+```bash
+vercel env rm ORDER_FROM_EMAIL production --yes
+echo "AyuLean <orders@yourdomain.in>" | vercel env add ORDER_FROM_EMAIL production
+vercel --prod
+```
+
+Until then the app runs fine: every email is written to the server log instead of being sent, and
+no order or checkout is affected.
+
 ### About the sender address
 
 Email providers only let you send **from** a domain you control and have authenticated with DKIM
