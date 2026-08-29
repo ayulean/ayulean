@@ -21,7 +21,7 @@ export default async function AdminDashboard() {
     { label: "Revenue", value: money(stats.revenue), icon: "💰" },
     { label: "COD / Online", value: `${stats.cod} / ${stats.online}`, icon: "💳" },
     { label: "Products", value: String(stats.products), icon: "📦" },
-    { label: "Reviews pending", value: String(stats.pendingReviews), icon: "⭐" },
+    { label: "Reviews held", value: String(stats.pendingReviews), icon: "⭐" },
     { label: "Replacements to action", value: String(stats.openReplacements), icon: "🔄" },
   ];
 

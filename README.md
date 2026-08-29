@@ -122,8 +122,15 @@ automatically runs in **COD-only mode** (checkout shows only Cash on Delivery).
 | Replacements | Customer replacement requests with status and internal notes |
 | Invoice | A printable GST invoice per order (Orders → Print invoice) |
 
-**Note:** a review submitted by a customer stays *pending* and appears on the website only after
-an admin approves it (this keeps spam out).
+**Reviews publish immediately.** A customer's review is live on the product page as soon as they
+submit it — there is nothing to approve. The admin panel is there to *remove* or *hide* a review, not
+to let it through.
+
+The one exception: a review containing a link is held back until you look at it. Review spam is
+almost always link spam, and a genuine customer describing a supplement has no reason to paste a
+URL. Held reviews appear in their own section in Admin → Reviews, where you can publish or delete
+them. The customer is not told their review was flagged — a spammer should not learn where the line
+is. Submissions are also rate limited to 3 per IP per hour.
 
 ---
 

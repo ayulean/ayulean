@@ -38,7 +38,7 @@ export function ReviewForm({ productId }: { productId: number }) {
     }
     form.reset();
     setRating(5);
-    setMsg({ ok: true, text: json.message ?? "Thank you! Your review has been submitted." });
+    setMsg({ ok: true, text: json.message ?? "Thank you! Your review is now live." });
     router.refresh();
   }
 

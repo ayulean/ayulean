@@ -12,36 +12,44 @@ const field =
 
 export default async function AdminReviewsPage() {
   const [reviews, products] = await Promise.all([getAllReviews(), getProducts({ includeInactive: true })]);
-  const pending = reviews.filter((r) => !r.approved);
-  const approved = reviews.filter((r) => r.approved);
+  const held = reviews.filter((r) => !r.approved);
+  const live = reviews.filter((r) => r.approved);
 
   return (
     <>
       <h1 className="font-display text-2xl font-bold text-brand-900">Reviews &amp; Ratings</h1>
-      <p className="mt-1 text-sm text-ink/55">
-        New reviews appear on the website only after they are approved. {pending.length} awaiting approval.
+      <p className="mt-1 text-sm leading-relaxed text-ink/55">
+        Customer reviews go live straight away — you do not need to approve them. Anything containing a link is
+        held back first, since that is almost always spam. {live.length} live · {held.length} held.
       </p>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_380px]">
         <div className="space-y-8">
-          <section>
-            <h2 className="font-display text-lg font-bold text-brand-800">Pending ({pending.length})</h2>
-            <div className="mt-3 space-y-3">
-              {pending.length === 0 && (
-                <p className="rounded-xl border border-dashed border-brand-200 p-8 text-center text-sm text-ink/50">
-                  No reviews pending. 👍
-                </p>
-              )}
-              {pending.map((r) => (
-                <ReviewCard key={r.id} review={r} />
-              ))}
-            </div>
-          </section>
+          {held.length > 0 && (
+            <section>
+              <h2 className="font-display text-lg font-bold text-gold-600">
+                Held — contains a link ({held.length})
+              </h2>
+              <p className="mt-1 text-xs text-ink/55">
+                Not visible on the site. Publish it if it is genuine, or delete it.
+              </p>
+              <div className="mt-3 space-y-3">
+                {held.map((r) => (
+                  <ReviewCard key={r.id} review={r} />
+                ))}
+              </div>
+            </section>
+          )}
 
           <section>
-            <h2 className="font-display text-lg font-bold text-brand-800">Live ({approved.length})</h2>
+            <h2 className="font-display text-lg font-bold text-brand-800">Live on the site ({live.length})</h2>
             <div className="mt-3 space-y-3">
-              {approved.map((r) => (
+              {live.length === 0 && (
+                <p className="rounded-xl border border-dashed border-brand-200 p-8 text-center text-sm text-ink/50">
+                  No reviews yet. They will appear here the moment a customer writes one.
+                </p>
+              )}
+              {live.map((r) => (
                 <ReviewCard key={r.id} review={r} />
               ))}
             </div>
@@ -127,7 +135,7 @@ function ReviewCard({
               r.approved ? "border border-brand-300 text-brand-700 hover:bg-brand-50" : "bg-brand-600 text-white hover:bg-brand-700"
             }`}
           >
-            {r.approved ? "Hide" : "Approve"}
+            {r.approved ? "Hide from site" : "Publish"}
           </button>
         </form>
         <form action={deleteReviewAction}>
