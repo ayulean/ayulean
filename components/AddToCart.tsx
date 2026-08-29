@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { trackAddToCart, trackBeginCheckout } from "@/lib/track";
 import type { Product } from "@/lib/types";
 import { useCart } from "./CartProvider";
 
@@ -54,6 +55,7 @@ export function AddToCart({ product }: { product: Product }) {
           disabled={out}
           onClick={() => {
             add(payload, qty);
+            trackAddToCart(payload, qty);
             setAdded(true);
             setTimeout(() => setAdded(false), 1800);
           }}
@@ -66,6 +68,8 @@ export function AddToCart({ product }: { product: Product }) {
           disabled={out}
           onClick={() => {
             add(payload, qty);
+            trackAddToCart(payload, qty);
+            trackBeginCheckout([{ ...payload, qty }], payload.price * qty);
             router.push("/checkout");
           }}
           className="flex-1 rounded-full bg-brand-600 px-6 py-3.5 font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-40"

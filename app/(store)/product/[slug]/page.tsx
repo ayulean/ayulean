@@ -6,6 +6,7 @@ import ProductCard from "@/components/ProductCard";
 import ProductGallery from "@/components/ProductGallery";
 import ReviewForm from "@/components/ReviewForm";
 import Stars from "@/components/Stars";
+import { TrackViewItem } from "@/components/TrackEvent";
 import WishlistButton from "@/components/WishlistButton";
 import { money } from "@/lib/pricing";
 import { getProductBySlug, getProducts, getReviews, ratingBreakdown } from "@/lib/queries";
@@ -55,6 +56,17 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
   return (
     <div className="container-x py-10 lg:py-14">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
+      <TrackViewItem
+        item={{
+          productId: product.id,
+          slug: product.slug,
+          name: product.name,
+          image: product.image,
+          price: product.price,
+          mrp: product.mrp,
+        }}
+      />
 
       <nav className="text-sm text-ink/50">
         <Link href="/" className="hover:text-brand-600">Home</Link> ·{" "}

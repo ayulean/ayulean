@@ -14,10 +14,14 @@ export default async function InvoicePage({ params }: PageProps<"/admin/orders/[
   const order = await getOrderByNo(orderNo);
   if (!order) notFound();
 
-  // Prices on the site are inclusive of tax, so the taxable value is backed out of the total.
+  // A GST breakup may only be shown by a GST-registered seller. Without a GSTIN
+  // this stays a plain invoice — issuing a "Tax Invoice" without registration is
+  // an offence under the GST Act.
+  const gstRegistered = Boolean(SITE.gstin);
   const gstRate = SITE.gstRate;
-  const taxable = Math.round((order.subtotal - order.discount) / (1 + gstRate / 100));
-  const tax = order.subtotal - order.discount - taxable;
+  const netOfDiscount = order.subtotal - order.discount;
+  const taxable = Math.round(netOfDiscount / (1 + gstRate / 100));
+  const tax = netOfDiscount - taxable;
 
   return (
     <div className="mx-auto max-w-3xl bg-white p-8 text-ink print:p-0">
@@ -33,7 +37,7 @@ export default async function InvoicePage({ params }: PageProps<"/admin/orders/[
           {SITE.gstin && <p className="mt-1 text-sm text-ink/65">GSTIN: {SITE.gstin}</p>}
         </div>
         <div className="text-right">
-          <p className="font-display text-xl font-bold">TAX INVOICE</p>
+          <p className="font-display text-xl font-bold">{gstRegistered ? "TAX INVOICE" : "INVOICE"}</p>
           <p className="mt-1 font-mono text-sm">{order.order_no}</p>
           <p className="text-sm text-ink/60">{new Date(order.created_at).toLocaleDateString("en-IN")}</p>
         </div>
@@ -101,14 +105,18 @@ export default async function InvoicePage({ params }: PageProps<"/admin/orders/[
               <dd>− {money(order.discount)}</dd>
             </div>
           )}
-          <div className="flex justify-between text-ink/60">
-            <dt>Taxable value</dt>
-            <dd>{money(taxable)}</dd>
-          </div>
-          <div className="flex justify-between text-ink/60">
-            <dt>GST @ {gstRate}%</dt>
-            <dd>{money(tax)}</dd>
-          </div>
+          {gstRegistered && (
+            <>
+              <div className="flex justify-between text-ink/60">
+                <dt>Taxable value</dt>
+                <dd>{money(taxable)}</dd>
+              </div>
+              <div className="flex justify-between text-ink/60">
+                <dt>GST @ {gstRate}%</dt>
+                <dd>{money(tax)}</dd>
+              </div>
+            </>
+          )}
           <div className="flex justify-between">
             <dt className="text-ink/60">Shipping</dt>
             <dd>{order.shipping === 0 ? "FREE" : money(order.shipping)}</dd>
@@ -122,12 +130,15 @@ export default async function InvoicePage({ params }: PageProps<"/admin/orders/[
 
       <footer className="mt-10 border-t border-brand-100 pt-4 text-xs leading-relaxed text-ink/55">
         <p>
-          This is a computer-generated invoice and does not require a signature. All prices are inclusive of GST.
-          Covered by our {SITE.replacementDays}-day replacement policy.
+          This is a computer-generated invoice and does not require a signature.
+          {gstRegistered ? " All prices are inclusive of GST." : ""} Covered by our {SITE.replacementDays}-day
+          replacement policy.
         </p>
-        {!SITE.gstin && (
-          <p className="mt-2 text-red-600 print:hidden">
-            Add your GSTIN in <code>lib/site.ts</code> before issuing this invoice to customers.
+        {!gstRegistered && (
+          <p className="mt-2 print:hidden">
+            No GSTIN is set, so this prints as a plain invoice with no tax breakup — correct if you are not yet
+            GST registered. Once you have a GSTIN, set <code>NEXT_PUBLIC_GSTIN</code> and it becomes a Tax Invoice
+            automatically.
           </p>
         )}
       </footer>

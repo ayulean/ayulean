@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { TrackPurchase } from "@/components/TrackEvent";
 import { money } from "@/lib/pricing";
 import { getOrderByNo } from "@/lib/queries";
 import { SITE } from "@/lib/site";
@@ -19,6 +20,14 @@ export default async function OrderPage({ params }: PageProps<"/order/[orderNo]"
 
   return (
     <div className="container-x py-14">
+      <TrackPurchase
+        orderNo={order.order_no}
+        items={items}
+        total={order.total}
+        shipping={order.shipping}
+        coupon={order.coupon_code}
+      />
+
       <div className="mx-auto max-w-2xl">
         <div className="rounded-3xl border border-brand-100 bg-gradient-to-b from-brand-50 to-white p-8 text-center">
           <p className="text-5xl" aria-hidden="true">🎉</p>

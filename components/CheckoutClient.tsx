@@ -4,8 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { money, shippingFor } from "@/lib/pricing";
+import { trackBeginCheckout } from "@/lib/track";
 import { SITE } from "@/lib/site";
 import { useCart } from "./CartProvider";
 
@@ -42,6 +43,14 @@ export function CheckoutClient({ onlineEnabled }: { onlineEnabled: boolean }) {
   const [error, setError] = useState("");
   // Read live so a per-customer coupon limit can be checked against the phone typed above.
   const phoneRef = useRef<HTMLInputElement>(null);
+
+  // Fires once the cart has hydrated, not on every coupon or quantity change.
+  const trackedCheckout = useRef(false);
+  useEffect(() => {
+    if (!ready || trackedCheckout.current || items.length === 0) return;
+    trackedCheckout.current = true;
+    trackBeginCheckout(items, subtotal);
+  }, [ready, items, subtotal]);
 
   const discount = applied?.discount ?? 0;
   const shipping = shippingFor(subtotal - discount);
