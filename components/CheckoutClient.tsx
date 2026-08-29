@@ -30,7 +30,22 @@ declare global {
   }
 }
 
-export function CheckoutClient({ onlineEnabled }: { onlineEnabled: boolean }) {
+export type CheckoutDefaults = {
+  name: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+};
+
+export function CheckoutClient({
+  onlineEnabled,
+  defaults,
+}: {
+  onlineEnabled: boolean;
+  defaults?: CheckoutDefaults;
+}) {
   const { items, subtotal, clear, ready } = useCart();
   const router = useRouter();
 
@@ -183,7 +198,7 @@ export function CheckoutClient({ onlineEnabled }: { onlineEnabled: boolean }) {
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <label className="text-sm font-medium">
                   Full name *
-                  <input name="name" required className={field} />
+                  <input name="name" required defaultValue={defaults?.name} autoComplete="name" className={field} />
                 </label>
                 <label className="text-sm font-medium">
                   Mobile number *
@@ -194,6 +209,8 @@ export function CheckoutClient({ onlineEnabled }: { onlineEnabled: boolean }) {
                     inputMode="numeric"
                     pattern="(\+91)?[6-9][0-9]{9}"
                     placeholder="9876543210"
+                    defaultValue={defaults?.phone}
+                    autoComplete="tel"
                     className={field}
                   />
                 </label>
@@ -206,17 +223,17 @@ export function CheckoutClient({ onlineEnabled }: { onlineEnabled: boolean }) {
 
               <label className="mt-4 block text-sm font-medium">
                 Address (house no, street, area) *
-                <textarea name="address" required rows={3} className={field} />
+                <textarea name="address" required rows={3} defaultValue={defaults?.address} className={field} />
               </label>
 
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
                 <label className="text-sm font-medium">
                   City *
-                  <input name="city" required className={field} />
+                  <input name="city" required defaultValue={defaults?.city} className={field} />
                 </label>
                 <label className="text-sm font-medium">
                   State *
-                  <select name="state" required defaultValue="" className={field}>
+                  <select name="state" required defaultValue={defaults?.state ?? ""} className={field}>
                     <option value="" disabled>Select state</option>
                     {STATES.map((s) => (
                       <option key={s} value={s}>{s}</option>
@@ -225,7 +242,7 @@ export function CheckoutClient({ onlineEnabled }: { onlineEnabled: boolean }) {
                 </label>
                 <label className="text-sm font-medium">
                   Pincode *
-                  <input name="pincode" required inputMode="numeric" pattern="[0-9]{6}" className={field} />
+                  <input name="pincode" required inputMode="numeric" pattern="[0-9]{6}" defaultValue={defaults?.pincode} className={field} />
                 </label>
               </div>
 

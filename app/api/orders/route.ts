@@ -1,3 +1,4 @@
+import { currentUser } from "@/lib/auth-customer";
 import { couponUsesByPhone, orderNumber, reserveOrderStock } from "@/lib/orders";
 import { sendOrderAlert, sendOrderConfirmation } from "@/lib/notify";
 import { allowRequest, clientIp } from "@/lib/ratelimit";
@@ -85,9 +86,13 @@ export async function POST(req: Request) {
     );
 
   const orderNo = orderNumber();
+  // Links the order to the account when one is signed in, so it shows up under
+  // "My orders". Guest checkout still works when accounts are switched off.
+  const user = await currentUser();
 
   const insert = await db().from("orders").insert({
     order_no: orderNo,
+    user_id: user?.id ?? null,
     customer_name: name,
     phone,
     email,

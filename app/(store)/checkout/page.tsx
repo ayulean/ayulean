@@ -1,11 +1,35 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import CheckoutClient from "@/components/CheckoutClient";
+import { accountsEnabled, currentProfile, currentUser } from "@/lib/auth-customer";
 import { onlinePaymentEnabled } from "@/lib/razorpay";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = { title: "Checkout", robots: { index: false } };
 
-export default function CheckoutPage() {
-  return <CheckoutClient onlineEnabled={onlinePaymentEnabled} />;
+export default async function CheckoutPage() {
+  // Like Flipkart and Amazon, browsing and the cart stay open to everyone and
+  // the account is only required at checkout. When accounts are not configured
+  // yet, guest checkout keeps the store working.
+  if (accountsEnabled) {
+    const user = await currentUser();
+    if (!user) redirect("/account/login?next=/checkout");
+  }
+
+  const profile = accountsEnabled ? await currentProfile() : null;
+
+  return (
+    <CheckoutClient
+      onlineEnabled={onlinePaymentEnabled}
+      defaults={{
+        name: profile?.full_name ?? "",
+        phone: profile?.phone ?? "",
+        address: profile?.address ?? "",
+        city: profile?.city ?? "",
+        state: profile?.state ?? "",
+        pincode: profile?.pincode ?? "",
+      }}
+    />
+  );
 }

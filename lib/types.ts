@@ -85,6 +85,7 @@ export type CartItem = {
 export type Order = {
   id: number;
   order_no: string;
+  user_id: string | null;
   customer_name: string;
   phone: string;
   email: string;

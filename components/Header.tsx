@@ -16,7 +16,7 @@ const NAV = [
   { href: "/contact", label: "Contact" },
 ];
 
-export function Header() {
+export function Header({ userName }: { userName: string | null }) {
   const { count, ready } = useCart();
   const [open, setOpen] = useState(false);
 
@@ -55,12 +55,13 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <a
-              href={`tel:${SITE.phone.replace(/\s/g, "")}`}
-              className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-brand-200 px-3 py-2 text-sm font-medium text-brand-700 hover:bg-brand-50"
+            <Link
+              href={userName ? "/account" : "/account/login"}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-brand-200 px-3 py-2 text-sm font-medium text-brand-700 hover:bg-brand-50"
             >
-              📞 {SITE.phone}
-            </a>
+              <span aria-hidden="true">👤</span>
+              {userName ?? "Log in"}
+            </Link>
             <Link
               href="/cart"
               className="relative inline-flex items-center gap-2 rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
@@ -97,6 +98,13 @@ export function Header() {
                   {n.label}
                 </Link>
               ))}
+              <Link
+                href={userName ? "/account" : "/account/login"}
+                onClick={() => setOpen(false)}
+                className="py-2.5 text-sm font-medium text-brand-700"
+              >
+                👤 {userName ? "My account" : "Log in / Sign up"}
+              </Link>
               <a href={`tel:${SITE.phone.replace(/\s/g, "")}`} className="py-2.5 text-sm font-medium text-brand-700">
                 📞 {SITE.phone}
               </a>

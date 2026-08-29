@@ -1,0 +1,21 @@
+export function AccountsDisabled() {
+  return (
+    <div className="container-x py-20">
+      <div className="mx-auto max-w-lg rounded-2xl border border-brand-100 bg-cream p-8 text-center">
+        <p className="text-4xl" aria-hidden="true">🔐</p>
+        <h1 className="mt-4 font-display text-2xl font-bold text-brand-800">Accounts are not set up yet</h1>
+        <p className="mt-3 text-sm leading-relaxed text-ink/65">
+          Customer sign-in needs the public Supabase key. Add{" "}
+          <code className="rounded bg-white px-1">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
+          <code className="rounded bg-white px-1">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> (Supabase → Project
+          Settings → API) and restart the server.
+        </p>
+        <p className="mt-3 text-sm text-ink/65">
+          Everything else works meanwhile — customers can still order as guests.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default AccountsDisabled;

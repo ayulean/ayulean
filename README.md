@@ -19,6 +19,8 @@ full admin panel where you can add more products, prices, discounts and coupons 
      tracking, stock release on cancellation, per-customer coupon limits, replacement requests and
      API rate limiting.
    - [`supabase/migrations/003_bundles.sql`](supabase/migrations/003_bundles.sql) — combo products.
+   - [`supabase/migrations/004_customer_accounts.sql`](supabase/migrations/004_customer_accounts.sql) —
+     customer accounts, profiles and per-customer order access.
 3. Go to **Project Settings → API** and copy the **Project URL** and the **`service_role`** key.
 
 ### Step 2 — run the app
@@ -59,6 +61,8 @@ Set these in `.env.local` (already created) — `.env.example` is the reference:
 | --- | --- |
 | `SUPABASE_URL` | Supabase Project URL (Project Settings → API) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase `service_role` key — **server-only, never commit it** |
+| `NEXT_PUBLIC_SUPABASE_URL` | Same project URL, readable in the browser (customer accounts) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public anon key. Empty = accounts off, guest checkout stays on |
 | `ADMIN_PASSWORD` | Password for the admin panel |
 | `ADMIN_SECRET` | Signs the admin session cookie — use a long random string in production |
 | `RAZORPAY_KEY_ID` | Razorpay Key ID (for online payment) |
@@ -89,6 +93,10 @@ automatically runs in **COD-only mode** (checkout shows only Cash on Delivery).
 | `/checkout` | Address form, coupon, Cash on Delivery or online payment |
 | `/order/[orderNo]` | Order confirmation |
 | `/track` | Order tracking by order number + mobile number |
+| `/account/login`, `/account/register` | Customer sign-in and sign-up, with Continue with Google |
+| `/account` | Profile, saved delivery address and change password |
+| `/account/orders` | The customer's own order history |
+| `/account/forgot-password` | Sends a password reset link |
 | `/wishlist` | Saved products (kept in the browser) |
 | `/replacement` | 7-day replacement request form |
 | `/about`, `/contact` | Brand info and contact (Sector 13 Karnal, +91 7082042004) |
@@ -204,6 +212,43 @@ picker.
 Two rules are enforced by the database itself, not just the form: a combo cannot contain another
 combo, and it cannot contain itself. Deleting a product that a combo depends on is blocked with a
 message naming the combo.
+
+---
+
+## 4c. Customer accounts
+
+Powered by Supabase Auth. Email + password and **Continue with Google**, plus forgot-password and
+change-password.
+
+**Where sign-in is required.** Browsing, the cart and the wishlist stay open to everyone; the account
+is only asked for at **checkout** — the same as Flipkart and Amazon. Forcing sign-up earlier is the
+single biggest way to lose a sale. A signed-in customer gets their saved address filled in
+automatically, and every order is linked to them so `/account/orders` works.
+
+Guests are not locked out either: while `NEXT_PUBLIC_SUPABASE_ANON_KEY` is empty, accounts are
+switched off entirely and checkout stays open to everyone.
+
+### Setting it up
+
+1. **Supabase → Project Settings → API** — copy the Project URL and the **anon / publishable** key
+   into `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Unlike the service key, these
+   two are meant to be public.
+2. **Supabase → Authentication → URL Configuration**
+   - Site URL: your production URL
+   - Redirect URLs: add `<your-url>/auth/callback` **and** `http://localhost:3000/auth/callback`
+3. **Continue with Google** — in [Google Cloud Console](https://console.cloud.google.com/apis/credentials),
+   create an *OAuth client ID* of type *Web application*. Add this authorised redirect URI:
+   ```
+   https://<your-project-ref>.supabase.co/auth/v1/callback
+   ```
+   Then paste the Client ID and Client Secret into **Supabase → Authentication → Providers → Google**
+   and enable it. Nothing needs to change in this codebase.
+
+### Security
+
+Customer pages use the **anon** key, so every query runs under row level security: the policies in
+migration 004 let a customer read and edit only their own profile, and read only their own orders.
+Nothing else in the database is reachable from a browser.
 
 ---
 
