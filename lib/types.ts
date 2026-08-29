@@ -124,8 +124,19 @@ export type ReplacementRequest = {
   status: ReplacementStatus;
   admin_note: string;
   customer_message: string;
+  courier: string;
+  tracking_number: string;
+  picked_up_at: string | null;
+  shipped_at: string | null;
+  delivered_at: string | null;
   updated_at: string;
   created_at: string;
 };
 
-export type ReplacementStatus = "open" | "approved" | "rejected" | "completed";
+export type ReplacementStatus =
+  | "open"
+  | "approved"
+  | "picked_up"
+  | "shipped"
+  | "delivered"
+  | "rejected";

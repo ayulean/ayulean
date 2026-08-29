@@ -25,6 +25,8 @@ full admin panel where you can add more products, prices, discounts and coupons 
      customer-initiated order cancellation.
    - [`supabase/migrations/006_replacement_status.sql`](supabase/migrations/006_replacement_status.sql) —
      replacement status visible to the customer.
+   - [`supabase/migrations/007_replacement_tracking.sql`](supabase/migrations/007_replacement_tracking.sql) —
+     courier tracking for the replacement shipment.
 3. Go to **Project Settings → API** and copy the **Project URL** and the **`service_role`** key.
 
 ### Step 2 — run the app
@@ -275,13 +277,28 @@ Cancelling puts the stock and coupon usage back automatically.
 Admins can still cancel from any status in the admin panel — a shipped parcel can be recalled by
 phone. Cancellations record who did it and why.
 
-**Replacement status.** Once a customer raises a replacement request they can follow it on their
-order page, on Track Order and under My Orders — with a progress bar and plain-English wording
-("Under review", "Approved", "Replacement sent", "Not approved") rather than the raw database
-status. Changing the status in the admin panel emails the customer.
+**Replacement lifecycle.** A replacement travels back and forth, so it has its own five-step journey
+and its own courier details — separate from the original order's:
 
-The admin form has two note fields, deliberately separate: **Internal note** is only ever seen by
-you, while **Message to customer** is shown on their order page and included in the email.
+| Status | Customer sees | You do next |
+| --- | --- | --- |
+| `open` | Under review | Review and approve or reject |
+| `approved` | Approved | Arrange the reverse pickup |
+| `picked_up` | Old product picked up | Pack and dispatch the replacement |
+| `shipped` | Replacement on the way | Waiting with the courier |
+| `delivered` | Replacement delivered | Done |
+| `rejected` | Not approved | Closed |
+
+Customers follow it on their order page, on Track Order and under My Orders — with a progress bar,
+the replacement's own tracking number, and dispatch/delivery dates. Every status change emails them,
+and the shipped mail carries the courier and AWB number.
+
+**The admin page is grouped by what you have to do**, not by date: *Needs your action* (review,
+pickup, dispatch), *Replacement on the way*, and *Closed*. If a request is marked shipped without a
+tracking number it is flagged, because the customer would otherwise have nothing to follow.
+
+Two note fields are deliberately kept separate: **Internal note** is only ever seen by you, while
+**Message to customer** appears on their order page and in the email.
 
 ---
 

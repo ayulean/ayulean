@@ -210,10 +210,11 @@ export async function dashboardStats() {
     .from("reviews")
     .select("id", { count: "exact", head: true })
     .eq("approved", false);
+  // Anything still waiting on us: to review, to pick up, or to dispatch.
   const openReplacements = await db()
     .from("replacement_requests")
     .select("id", { count: "exact", head: true })
-    .eq("status", "open");
+    .in("status", ["open", "approved", "picked_up"]);
 
   return {
     orders: orders.length,

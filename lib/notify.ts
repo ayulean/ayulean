@@ -166,29 +166,40 @@ export async function sendReplacementAlert(input: {
   );
 }
 
-/** Tells the customer their replacement request has been decided. */
+/** Tells the customer their replacement request has moved. */
 export async function sendReplacementStatusEmail(input: {
   to: string;
   name: string;
   orderNo: string;
   status: ReplacementStatus;
   customerMessage: string;
+  courier?: string;
+  trackingNumber?: string;
 }) {
   if (!input.to) return;
 
   const info = REPLACEMENT_STATUS[input.status] ?? REPLACEMENT_STATUS.open;
 
+  const tracking =
+    input.trackingNumber && (input.status === "shipped" || input.status === "delivered")
+      ? `<p style="font-size:14px;line-height:1.6;background:#e0f0dd;padding:12px;border-radius:8px">
+           <strong>${input.courier || "Courier"}</strong><br>
+           Tracking number: <strong>${input.trackingNumber}</strong>
+         </p>`
+      : "";
+
   await send(
     input.to,
-    `Replacement request for ${input.orderNo} — ${info.label}`,
+    `Replacement for ${input.orderNo} — ${info.label}`,
     shell(
-      `Replacement ${info.label.toLowerCase()}`,
+      info.label,
       `<p style="font-size:14px;line-height:1.6">Hi ${input.name},</p>
        <p style="font-size:14px;line-height:1.6">
-         Your replacement request for order <strong>${input.orderNo}</strong> is now marked
-         <strong>${info.label}</strong>.
+         Your replacement request for order <strong>${input.orderNo}</strong> is now
+         <strong>${info.label.toLowerCase()}</strong>.
        </p>
        <p style="font-size:14px;line-height:1.6">${info.detail}</p>
+       ${tracking}
        ${
          input.customerMessage
            ? `<p style="font-size:14px;line-height:1.6;background:#fdfaf3;padding:12px;border-radius:8px">${input.customerMessage}</p>`

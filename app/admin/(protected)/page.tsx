@@ -22,7 +22,7 @@ export default async function AdminDashboard() {
     { label: "COD / Online", value: `${stats.cod} / ${stats.online}`, icon: "💳" },
     { label: "Products", value: String(stats.products), icon: "📦" },
     { label: "Reviews pending", value: String(stats.pendingReviews), icon: "⭐" },
-    { label: "Open replacements", value: String(stats.openReplacements), icon: "🔄" },
+    { label: "Replacements to action", value: String(stats.openReplacements), icon: "🔄" },
   ];
 
   return (

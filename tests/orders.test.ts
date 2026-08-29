@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import { describe, it } from "vitest";
 import { canCancel, cancelBlockedReason, mayAccessOrder, orderNumber } from "@/lib/orders";
+import {
+  ALL_REPLACEMENT_STATUSES,
+  REPLACEMENT_STATUS,
+  REPLACEMENT_STEPS,
+  isFinished,
+  needsAction,
+} from "@/lib/replacement";
 
 describe("orderNumber", () => {
   it("uses the AYU prefix with a date stamp and 5 random digits", () => {
@@ -77,5 +84,40 @@ describe("mayAccessOrder", () => {
 
   it("refuses when nothing is offered", () => {
     assert.equal(mayAccessOrder(order, {}), false);
+  });
+});
+
+describe("replacement lifecycle", () => {
+  it("runs open → approved → picked_up → shipped → delivered", () => {
+    assert.deepEqual(REPLACEMENT_STEPS, ["open", "approved", "picked_up", "shipped", "delivered"]);
+  });
+
+  it("keeps rejected outside the happy path", () => {
+    assert.equal(REPLACEMENT_STEPS.includes("rejected" as never), false);
+    assert.equal(ALL_REPLACEMENT_STATUSES.includes("rejected"), true);
+  });
+
+  it("flags the statuses that still need the store owner", () => {
+    assert.equal(needsAction("open"), true);
+    assert.equal(needsAction("approved"), true);
+    assert.equal(needsAction("picked_up"), true);
+    assert.equal(needsAction("shipped"), false);
+    assert.equal(needsAction("delivered"), false);
+    assert.equal(needsAction("rejected"), false);
+  });
+
+  it("treats only delivered and rejected as finished", () => {
+    assert.equal(isFinished("delivered"), true);
+    assert.equal(isFinished("rejected"), true);
+    assert.equal(isFinished("shipped"), false);
+    assert.equal(isFinished("open"), false);
+  });
+
+  it("gives every status customer-facing wording and an admin next step", () => {
+    for (const s of ALL_REPLACEMENT_STATUSES) {
+      assert.ok(REPLACEMENT_STATUS[s].label.length > 0, `${s} has no label`);
+      assert.ok(REPLACEMENT_STATUS[s].detail.length > 0, `${s} has no detail`);
+      assert.ok(REPLACEMENT_STATUS[s].adminNext.length > 0, `${s} has no admin next step`);
+    }
   });
 });

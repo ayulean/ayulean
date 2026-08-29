@@ -8,6 +8,7 @@ import { sendReplacementStatusEmail, sendShippingUpdate } from "./notify";
 import { releaseOrderStock, reserveOrderStock } from "./orders";
 import { getOrderByNo } from "./queries";
 import { db, unwrap } from "./supabase";
+import { ALL_REPLACEMENT_STATUSES } from "./replacement";
 import type { ReplacementStatus } from "./types";
 
 async function guard() {
@@ -286,15 +287,29 @@ export async function updateReplacementAction(formData: FormData) {
   await guard();
 
   const id = Number(formData.get("id") ?? 0);
-  const status = String(formData.get("status") ?? "");
+  const status = String(formData.get("status") ?? "") as ReplacementStatus;
   const adminNote = String(formData.get("admin_note") ?? "").trim();
   const customerMessage = String(formData.get("customer_message") ?? "").trim().slice(0, 500);
-  if (!id || !["open", "approved", "rejected", "completed"].includes(status)) return;
+  const courier = String(formData.get("courier") ?? "").trim().slice(0, 60);
+  const trackingNumber = String(formData.get("tracking_number") ?? "").trim().slice(0, 60);
+
+  if (!id || !ALL_REPLACEMENT_STATUSES.includes(status)) return;
 
   const before = unwrap<Array<{ status: string; order_no: string; name: string }>>(
     await db().from("replacement_requests").select("status, order_no, name").eq("id", id).limit(1),
     "Failed to load request"
   )[0];
+  if (!before) return;
+
+  const now = new Date().toISOString();
+  const changed = before.status !== status;
+
+  // Stamp each milestone the first time it is reached, so the customer sees
+  // real dates rather than one "last updated" timestamp.
+  const stamps: Record<string, string> = {};
+  if (changed && status === "picked_up") stamps.picked_up_at = now;
+  if (changed && status === "shipped") stamps.shipped_at = now;
+  if (changed && status === "delivered") stamps.delivered_at = now;
 
   const res = await db()
     .from("replacement_requests")
@@ -302,21 +317,26 @@ export async function updateReplacementAction(formData: FormData) {
       status,
       admin_note: adminNote,
       customer_message: customerMessage,
-      updated_at: new Date().toISOString(),
+      courier,
+      tracking_number: trackingNumber,
+      updated_at: now,
+      ...stamps,
     })
     .eq("id", id);
   if (res.error) throw new Error(`Failed to update request: ${res.error.message}`);
 
   // Only email on a real change, so re-saving a note does not spam the customer.
-  if (before && before.status !== status) {
+  if (changed) {
     const order = await getOrderByNo(before.order_no);
     if (order?.email) {
       void sendReplacementStatusEmail({
         to: order.email,
         name: before.name,
         orderNo: before.order_no,
-        status: status as ReplacementStatus,
+        status,
         customerMessage,
+        courier,
+        trackingNumber,
       });
     }
   }
