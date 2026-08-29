@@ -188,6 +188,19 @@ a "Pack of 3" needs 3 bottles and 10 bottles are left, 3 combos are available. S
 removes 3 bottles, and cancelling that order puts all 3 back. The product page shows what is inside
 and how much the customer saves against buying the items separately.
 
+### Multipacks (2, 3, 4… of the same product)
+
+A pack is just a combo with one component. The fastest route is **Admin → Products → Create pack**
+next to any product — it opens a prefilled draft named "… — Pack of 3", with the MRP already set to
+what 3 would cost separately. Change the pack size with the Pack of 2 / 3 / 4 / 6 / 12 buttons, then
+lower the price so the customer has a reason to buy the pack.
+
+**If you only want to sell packs and never the single unit**, add the single item once and save it
+with **"Show live on the website" unchecked**. It stays out of the shop and acts purely as the stock
+item every pack draws from — so all your inventory lives in one place instead of being split across
+"Pack of 2", "Pack of 3" and so on. Hidden products are marked `(hidden — stock item)` in the combo
+picker.
+
 Two rules are enforced by the database itself, not just the form: a combo cannot contain another
 combo, and it cannot contain itself. Deleting a product that a combo depends on is blocked with a
 message naming the combo.

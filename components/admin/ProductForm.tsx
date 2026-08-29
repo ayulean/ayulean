@@ -2,16 +2,30 @@ import Link from "next/link";
 import BundleBuilder, { type BuilderProduct } from "@/components/admin/BundleBuilder";
 import ImageUploader from "@/components/admin/ImageUploader";
 import { saveProductAction } from "@/lib/actions";
-import type { Product } from "@/lib/types";
+import type { BundleComponent, Product } from "@/lib/types";
 
 const field =
   "mt-1 w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none";
 
+/** Values used to prefill a brand-new product, e.g. when creating a pack. */
+export type ProductDraft = {
+  name?: string;
+  subtitle?: string;
+  description?: string;
+  image?: string;
+  gallery?: string[];
+  mrp?: number;
+  price?: number;
+  bundleItems?: BundleComponent[];
+};
+
 export function ProductForm({
   product,
+  draft,
   allProducts,
 }: {
   product?: Product;
+  draft?: ProductDraft;
   allProducts: BuilderProduct[];
 }) {
   return (
@@ -23,7 +37,7 @@ export function ProductForm({
 
         <label className="mt-4 block text-sm font-medium">
           Product name *
-          <input name="name" required defaultValue={product?.name} className={field} />
+          <input name="name" required defaultValue={product?.name ?? draft?.name} className={field} />
         </label>
 
         <label className="mt-4 block text-sm font-medium">
@@ -33,16 +47,20 @@ export function ProductForm({
 
         <label className="mt-4 block text-sm font-medium">
           Short subtitle
-          <input name="subtitle" defaultValue={product?.subtitle} className={field} />
+          <input name="subtitle" defaultValue={product?.subtitle ?? draft?.subtitle} className={field} />
         </label>
 
         <label className="mt-4 block text-sm font-medium">
           Description (press Enter twice to start a new paragraph)
-          <textarea name="description" rows={7} defaultValue={product?.description} className={field} />
+          <textarea name="description" rows={7} defaultValue={product?.description ?? draft?.description} className={field} />
         </label>
       </section>
 
-      <BundleBuilder products={allProducts} initial={product?.bundle_items ?? []} editingId={product?.id} />
+      <BundleBuilder
+        products={allProducts}
+        initial={product?.bundle_items ?? draft?.bundleItems ?? []}
+        editingId={product?.id}
+      />
 
       <section className="rounded-2xl border border-brand-100 bg-white p-6">
         <h2 className="font-display text-lg font-bold text-brand-800">Price &amp; stock</h2>
@@ -51,11 +69,11 @@ export function ProductForm({
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <label className="text-sm font-medium">
             MRP (₹) *
-            <input name="mrp" type="number" min={0} required defaultValue={product?.mrp ?? 0} className={field} />
+            <input name="mrp" type="number" min={0} required defaultValue={product?.mrp ?? draft?.mrp ?? 0} className={field} />
           </label>
           <label className="text-sm font-medium">
             Selling price (₹) *
-            <input name="price" type="number" min={0} required defaultValue={product?.price ?? 0} className={field} />
+            <input name="price" type="number" min={0} required defaultValue={product?.price ?? draft?.price ?? 0} className={field} />
           </label>
           <label className="text-sm font-medium">
             Stock (pieces) *
@@ -79,7 +97,7 @@ export function ProductForm({
 
         <label className="mt-4 block text-sm font-medium">
           Main image
-          <input id="product-image" name="image" defaultValue={product?.image ?? "/img/product-1.svg"} className={field} />
+          <input id="product-image" name="image" defaultValue={product?.image ?? draft?.image ?? "/img/product-1.svg"} className={field} />
         </label>
 
         <label className="mt-4 block text-sm font-medium">
@@ -88,7 +106,7 @@ export function ProductForm({
             id="product-gallery"
             name="gallery"
             rows={4}
-            defaultValue={(product?.gallery ?? ["/img/product-1.svg"]).join("\n")}
+            defaultValue={(product?.gallery ?? draft?.gallery ?? ["/img/product-1.svg"]).join("\n")}
             className={field}
           />
         </label>

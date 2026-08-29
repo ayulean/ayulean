@@ -30,6 +30,7 @@ export default async function EditProductPage({ params }: PageProps<"/admin/prod
           price: p.price,
           stock: p.stock,
           isBundle: p.isBundle,
+          active: p.active,
         }))}
       />
     </>

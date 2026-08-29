@@ -95,6 +95,14 @@ export default async function AdminProductsPage({ searchParams }: PageProps<"/ad
                     <Link href={`/admin/products/${p.id}`} className="text-xs font-semibold text-brand-600 hover:underline">
                       Edit
                     </Link>
+                    {!p.isBundle && (
+                      <Link
+                        href={`/admin/products/new?packOf=${p.id}&qty=3`}
+                        className="text-xs text-brand-600 hover:underline"
+                      >
+                        Create pack
+                      </Link>
+                    )}
                     <form action={deleteProductAction}>
                       <input type="hidden" name="id" value={p.id} />
                       <button type="submit" className="text-xs text-red-600 hover:underline">Delete</button>

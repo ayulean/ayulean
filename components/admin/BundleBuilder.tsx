@@ -11,7 +11,10 @@ export type BuilderProduct = {
   price: number;
   stock: number;
   isBundle: boolean;
+  active: boolean;
 };
+
+const PACK_SIZES = [2, 3, 4, 6, 12];
 
 /**
  * Picks the products that make up a combo. The chosen list is written to a
@@ -38,7 +41,7 @@ export function BundleBuilder({
 
   const resolved = items.flatMap((i) => {
     const p = byId.get(i.productId);
-    return p ? [{ ...i, name: p.name, price: p.price, stock: p.stock }] : [];
+    return p ? [{ ...i, name: p.name, price: p.price, stock: p.stock, active: p.active }] : [];
   });
 
   const separate = bundleSeparateValue(resolved);
@@ -69,8 +72,10 @@ export function BundleBuilder({
       </p>
 
       {selectable.length === 0 ? (
-        <p className="mt-4 rounded-lg bg-cream p-3 text-sm text-ink/60">
-          You need at least one normal (non-combo) product before you can build a combo.
+        <p className="mt-4 rounded-lg bg-cream p-3 text-sm leading-relaxed text-ink/60">
+          There is no product to build from yet. Add the single item first — if you do not want to sell it on
+          its own, save it with <strong>&ldquo;Show live on the website&rdquo; unchecked</strong>. It then acts
+          purely as a stock item that packs and combos draw from.
         </p>
       ) : (
         <div className="mt-4 flex flex-wrap gap-2">
@@ -88,7 +93,8 @@ export function BundleBuilder({
               .filter((p) => !items.some((i) => i.productId === p.id))
               .map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.name} — {money(p.price)} ({p.stock} in stock)
+                  {p.name}
+                  {p.active ? "" : " (hidden — stock item)"} — {money(p.price)} ({p.stock} in stock)
                 </option>
               ))}
           </select>
@@ -152,10 +158,29 @@ export function BundleBuilder({
           </dl>
 
           {resolved.length === 1 && (
-            <p className="mt-3 text-xs text-gold-600">
-              A combo usually has two or more different products. With one product this behaves like a
-              multi-pack, which is fine — just make sure that is what you meant.
-            </p>
+            <div className="mt-4 rounded-xl bg-cream p-4">
+              <p className="text-sm font-medium text-brand-800">This is a multipack</p>
+              <p className="mt-1 text-xs leading-relaxed text-ink/60">
+                One product, sold {resolved[0].qty} at a time. Pick a pack size:
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {PACK_SIZES.map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setQty(resolved[0].productId, n)}
+                    aria-pressed={resolved[0].qty === n}
+                    className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+                      resolved[0].qty === n
+                        ? "bg-brand-600 text-white"
+                        : "border border-brand-300 text-brand-700 hover:bg-brand-50"
+                    }`}
+                  >
+                    Pack of {n}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
 
           <p className="mt-3 text-xs text-ink/55">
