@@ -14,7 +14,7 @@ export default async function AdminDashboard() {
     getProducts({ includeInactive: true }),
   ]);
   const recent = orders.slice(0, 8);
-  const lowStock = products.filter((p) => p.stock <= 10);
+  const lowStock = products.filter((p) => p.available <= 10);
 
   const cards = [
     { label: "Total orders", value: String(stats.orders), icon: "🧾" },
@@ -88,8 +88,8 @@ export default async function AdminDashboard() {
               {lowStock.map((p) => (
                 <li key={p.id} className="flex items-center justify-between text-sm">
                   <Link href={`/admin/products/${p.id}`} className="text-brand-700 hover:underline">{p.name}</Link>
-                  <span className={p.stock === 0 ? "font-bold text-red-600" : "font-semibold text-gold-600"}>
-                    {p.stock} left
+                  <span className={p.available === 0 ? "font-bold text-red-600" : "font-semibold text-gold-600"}>
+                    {p.available} left
                   </span>
                 </li>
               ))}

@@ -30,6 +30,9 @@ export default async function AdminProductsPage({ searchParams }: PageProps<"/ad
 
       {sp.saved && <p className="mt-4 rounded-lg bg-brand-100 p-3 text-sm text-brand-800">✓ Product saved.</p>}
       {sp.deleted && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">Product deleted.</p>}
+      {typeof sp.error === "string" && (
+        <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{sp.error}</p>
+      )}
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-brand-100 bg-white">
         <table className="w-full text-sm">
@@ -53,7 +56,14 @@ export default async function AdminProductsPage({ searchParams }: PageProps<"/ad
                       <Image src={p.image} alt="" fill sizes="48px" className="object-cover" />
                     </span>
                     <span>
-                      <span className="block font-medium text-brand-800">{p.name}</span>
+                      <span className="block font-medium text-brand-800">
+                        {p.name}
+                        {p.isBundle && (
+                          <span className="ml-2 rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-bold text-brand-700">
+                            COMBO
+                          </span>
+                        )}
+                      </span>
                       <span className="text-xs text-ink/45">/{p.slug}</span>
                     </span>
                   </div>
@@ -64,7 +74,10 @@ export default async function AdminProductsPage({ searchParams }: PageProps<"/ad
                 </td>
                 <td className="p-4">{p.discountPercent > 0 ? `${p.discountPercent}%` : "—"}</td>
                 <td className="p-4">
-                  <span className={p.stock === 0 ? "font-bold text-red-600" : ""}>{p.stock}</span>
+                  <span className={p.available === 0 ? "font-bold text-red-600" : ""}>{p.available}</span>
+                  {p.isBundle && (
+                    <span className="block text-[11px] text-ink/45">from components</span>
+                  )}
                 </td>
                 <td className="p-4">{p.reviewCount ? `${p.rating} (${p.reviewCount})` : "—"}</td>
                 <td className="p-4">

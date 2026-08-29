@@ -1,3 +1,17 @@
+export type BundleComponent = {
+  productId: number;
+  qty: number;
+};
+
+/** A component of a combo, resolved with the details needed to display it. */
+export type ResolvedComponent = BundleComponent & {
+  name: string;
+  slug: string;
+  image: string;
+  price: number;
+  stock: number;
+};
+
 export type ProductRow = {
   id: number;
   slug: string;
@@ -13,6 +27,7 @@ export type ProductRow = {
   gallery: string[];
   stock: number;
   active: boolean;
+  bundle_items: BundleComponent[];
   created_at: string;
 };
 
@@ -20,6 +35,14 @@ export type Product = ProductRow & {
   discountPercent: number;
   rating: number;
   reviewCount: number;
+  /** True when this product is a combo made of other products. */
+  isBundle: boolean;
+  /** Components with their names and stock, empty for a normal product. */
+  components: ResolvedComponent[];
+  /** Units that can actually be sold — component-limited for a combo. */
+  available: number;
+  /** What the components would cost bought separately (0 for a normal product). */
+  separateValue: number;
 };
 
 export type Review = {

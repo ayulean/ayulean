@@ -8,6 +8,7 @@ import ReviewForm from "@/components/ReviewForm";
 import Stars from "@/components/Stars";
 import { TrackViewItem } from "@/components/TrackEvent";
 import WishlistButton from "@/components/WishlistButton";
+import Image from "next/image";
 import { money } from "@/lib/pricing";
 import { getProductBySlug, getProducts, getReviews, ratingBreakdown } from "@/lib/queries";
 import { SITE } from "@/lib/site";
@@ -42,7 +43,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
       "@type": "Offer",
       price: product.price,
       priceCurrency: "INR",
-      availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      availability: product.available > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
     },
     ...(product.reviewCount > 0 && {
       aggregateRating: {
@@ -100,6 +101,46 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
             )}
           </div>
           <p className="mt-1 text-sm text-ink/50">Inclusive of all taxes</p>
+
+          {product.isBundle && (
+            <section className="mt-6 rounded-2xl border border-brand-200 bg-brand-50 p-5">
+              <h2 className="flex items-center gap-2 font-display text-lg font-bold text-brand-800">
+                <span className="rounded-full bg-brand-700 px-2.5 py-0.5 text-xs font-bold text-white">COMBO</span>
+                What&rsquo;s inside
+              </h2>
+
+              <ul className="mt-4 space-y-3">
+                {product.components.map((c) => (
+                  <li key={c.productId} className="flex items-center gap-3">
+                    <Link
+                      href={`/product/${c.slug}`}
+                      className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-brand-200 bg-white"
+                    >
+                      <Image src={c.image} alt="" fill sizes="56px" className="object-cover" />
+                    </Link>
+                    <span className="flex-1 text-sm">
+                      <Link href={`/product/${c.slug}`} className="font-medium text-brand-800 hover:text-brand-600">
+                        {c.name}
+                      </Link>
+                      <span className="block text-ink/55">
+                        {c.qty} × {money(c.price)}
+                      </span>
+                    </span>
+                    <span className="text-sm font-semibold text-ink/70">{money(c.price * c.qty)}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {product.separateValue > product.price && (
+                <p className="mt-4 rounded-xl bg-white p-3 text-sm text-ink/75">
+                  Bought separately this costs{" "}
+                  <strong className="text-ink/60 line-through">{money(product.separateValue)}</strong> — you save{" "}
+                  <strong className="text-brand-700">{money(product.separateValue - product.price)}</strong> with
+                  this combo.
+                </p>
+              )}
+            </section>
+          )}
 
           <AddToCart product={product} />
 

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { ADMIN_PASSWORD, clearAdminCookie, isAdmin, setAdminCookie } from "./auth";
+import { parseBundleItems } from "./bundle";
 import { sendShippingUpdate } from "./notify";
 import { releaseOrderStock, reserveOrderStock } from "./orders";
 import { getOrderByNo } from "./queries";
@@ -74,6 +75,17 @@ export async function saveProductAction(formData: FormData) {
   const gallery = lines(formData.get("gallery"));
   const image = String(formData.get("image") ?? "").trim() || gallery[0] || "/img/product-1.svg";
 
+  // Combo contents arrive as JSON from the bundle builder. A product that
+  // contains others keeps no stock of its own — availability is derived from
+  // the components, so we pin its own stock column to 0 to avoid confusion.
+  let bundleItems: ReturnType<typeof parseBundleItems> = [];
+  try {
+    bundleItems = parseBundleItems(JSON.parse(String(formData.get("bundle_items") ?? "[]")));
+  } catch {
+    bundleItems = [];
+  }
+  if (id) bundleItems = bundleItems.filter((c) => c.productId !== id);
+
   const data = {
     slug,
     name,
@@ -86,14 +98,22 @@ export async function saveProductAction(formData: FormData) {
     price: Math.max(0, Math.round(Number(formData.get("price") ?? 0))),
     image,
     gallery: gallery.length ? gallery : [image],
-    stock: Math.max(0, Math.round(Number(formData.get("stock") ?? 0))),
+    stock: bundleItems.length > 0 ? 0 : Math.max(0, Math.round(Number(formData.get("stock") ?? 0))),
     active: Boolean(formData.get("active")),
+    bundle_items: bundleItems,
   };
 
   const res = id
     ? await db().from("products").update(data).eq("id", id)
     : await db().from("products").insert(data);
-  if (res.error) throw new Error(`Failed to save product: ${res.error.message}`);
+
+  if (res.error) {
+    // The database trigger rejects a combo inside a combo.
+    if (/combo/i.test(res.error.message)) {
+      redirect(`/admin/products?error=${encodeURIComponent(res.error.message)}`);
+    }
+    throw new Error(`Failed to save product: ${res.error.message}`);
+  }
 
   revalidatePath("/", "layout");
   redirect("/admin/products?saved=1");
@@ -104,6 +124,19 @@ export async function deleteProductAction(formData: FormData) {
 
   const id = Number(formData.get("id") ?? 0);
   if (id) {
+    // Deleting a product that a combo depends on would silently break that combo.
+    const usedIn = unwrap<Array<{ name: string }>>(
+      await db().from("products").select("name").contains("bundle_items", [{ productId: id }]),
+      "Failed to check combos"
+    );
+    if (usedIn.length > 0) {
+      redirect(
+        `/admin/products?error=${encodeURIComponent(
+          `This product is part of the combo "${usedIn[0].name}". Remove it from that combo first.`
+        )}`
+      );
+    }
+
     // reviews cascade automatically via the foreign key
     const res = await db().from("products").delete().eq("id", id);
     if (res.error) throw new Error(`Failed to delete product: ${res.error.message}`);

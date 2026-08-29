@@ -1,9 +1,10 @@
+import { bundleAvailability, bundleSeparateValue, parseBundleItems } from "./bundle";
 import { db, unwrap } from "./supabase";
-import type { Coupon, Order, Product, ProductRow, ReplacementRequest, Review } from "./types";
+import type { Coupon, Order, Product, ProductRow, ReplacementRequest, ResolvedComponent, Review } from "./types";
 
 type StatsRow = { product_id: number; review_count: number; avg_rating: number | string };
 
-/** Attaches rating stats and the derived discount percentage to product rows. */
+/** Attaches rating stats, discount and combo details to product rows. */
 async function withStats(rows: ProductRow[]): Promise<Product[]> {
   if (rows.length === 0) return [];
 
@@ -14,15 +15,42 @@ async function withStats(rows: ProductRow[]): Promise<Product[]> {
       .in("product_id", rows.map((r) => r.id)),
     "Failed to load product stats"
   );
+  const statsById = new Map(stats.map((s) => [s.product_id, s]));
 
-  const byId = new Map(stats.map((s) => [s.product_id, s]));
+  // A combo needs its components' live price and stock, so fetch them in one go.
+  const bundleItemsByRow = new Map(rows.map((r) => [r.id, parseBundleItems(r.bundle_items)]));
+  const componentIds = [...new Set([...bundleItemsByRow.values()].flat().map((c) => c.productId))];
+
+  let componentsById = new Map<number, Pick<ProductRow, "id" | "name" | "slug" | "image" | "price" | "stock">>();
+  if (componentIds.length > 0) {
+    const comps = unwrap<Array<Pick<ProductRow, "id" | "name" | "slug" | "image" | "price" | "stock">>>(
+      await db().from("products").select("id, name, slug, image, price, stock").in("id", componentIds),
+      "Failed to load combo components"
+    );
+    componentsById = new Map(comps.map((c) => [c.id, c]));
+  }
 
   return rows.map((row) => {
-    const s = byId.get(row.id);
+    const s = statsById.get(row.id);
+    const items = bundleItemsByRow.get(row.id) ?? [];
+
+    // Drop components whose product has since been deleted.
+    const components: ResolvedComponent[] = items.flatMap((i) => {
+      const c = componentsById.get(i.productId);
+      return c ? [{ ...i, name: c.name, slug: c.slug, image: c.image, price: c.price, stock: c.stock }] : [];
+    });
+
+    const isBundle = components.length > 0;
+
     return {
       ...row,
       benefits: Array.isArray(row.benefits) ? row.benefits : [],
       gallery: Array.isArray(row.gallery) ? row.gallery : [],
+      bundle_items: items,
+      isBundle,
+      components,
+      available: isBundle ? bundleAvailability(components) : row.stock,
+      separateValue: isBundle ? bundleSeparateValue(components) : 0,
       discountPercent: row.mrp > row.price ? Math.round(((row.mrp - row.price) / row.mrp) * 100) : 0,
       rating: Math.round(Number(s?.avg_rating ?? 0) * 10) / 10,
       reviewCount: Number(s?.review_count ?? 0),

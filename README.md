@@ -18,6 +18,7 @@ full admin panel where you can add more products, prices, discounts and coupons 
    - [`supabase/migrations/002_features.sql`](supabase/migrations/002_features.sql) — courier
      tracking, stock release on cancellation, per-customer coupon limits, replacement requests and
      API rate limiting.
+   - [`supabase/migrations/003_bundles.sql`](supabase/migrations/003_bundles.sql) — combo products.
 3. Go to **Project Settings → API** and copy the **Project URL** and the **`service_role`** key.
 
 ### Step 2 — run the app
@@ -100,6 +101,7 @@ automatically runs in **COD-only mode** (checkout shows only Cash on Delivery).
 | --- | --- |
 | Dashboard | Orders, revenue, COD vs online split, stock alerts |
 | Products | Add a product — name, description, benefits, ingredients, MRP, price (discount % is automatic), stock, images, live/hidden |
+| Combos | Turn any product into a combo by listing the products inside it (Products → Edit → Combo contents) |
 | Coupons | Create percent or flat discount coupons — minimum order, max discount cap, expiry date, usage limit |
 | Orders | Full order details, status updates (placed → confirmed → shipped → delivered), WhatsApp link |
 | Reviews | Approve, hide or delete customer reviews, or add one yourself |
@@ -173,6 +175,22 @@ reject it as spoofing. So:
 owns the account. So new-order alerts to `ayuleanveda@gmail.com` will arrive, but customer
 confirmation emails will not go out until you verify a domain (Resend → Domains → Add domain, then
 add the DNS records at your registrar).
+
+---
+
+## 4b. Combo products
+
+Any product can be turned into a combo. In **Admin → Products → Edit → Combo contents**, add the
+products it contains and how many of each. Leave it empty for a normal product.
+
+A combo keeps **no stock of its own**. How many you can sell is worked out from the components — if
+a "Pack of 3" needs 3 bottles and 10 bottles are left, 3 combos are available. Selling one combo
+removes 3 bottles, and cancelling that order puts all 3 back. The product page shows what is inside
+and how much the customer saves against buying the items separately.
+
+Two rules are enforced by the database itself, not just the form: a combo cannot contain another
+combo, and it cannot contain itself. Deleting a product that a combo depends on is blocked with a
+message naming the combo.
 
 ---
 

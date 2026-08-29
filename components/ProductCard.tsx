@@ -33,7 +33,12 @@ export function ProductCard({ product }: { product: Product }) {
               {product.discountPercent}% OFF
             </span>
           )}
-          {product.stock <= 0 && (
+          {product.isBundle && (
+            <span className="absolute left-3 bottom-3 rounded-full bg-brand-700 px-2.5 py-1 text-xs font-bold text-white">
+              COMBO · {product.components.reduce((n, c) => n + c.qty, 0)} items
+            </span>
+          )}
+          {product.available <= 0 && (
             <span className="absolute bottom-3 left-3 rounded-full bg-red-600 px-2.5 py-1 text-xs font-bold text-white">
               Out of stock
             </span>

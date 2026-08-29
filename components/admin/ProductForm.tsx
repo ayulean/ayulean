@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BundleBuilder, { type BuilderProduct } from "@/components/admin/BundleBuilder";
 import ImageUploader from "@/components/admin/ImageUploader";
 import { saveProductAction } from "@/lib/actions";
 import type { Product } from "@/lib/types";
@@ -6,7 +7,13 @@ import type { Product } from "@/lib/types";
 const field =
   "mt-1 w-full rounded-lg border border-brand-200 bg-white px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none";
 
-export function ProductForm({ product }: { product?: Product }) {
+export function ProductForm({
+  product,
+  allProducts,
+}: {
+  product?: Product;
+  allProducts: BuilderProduct[];
+}) {
   return (
     <form action={saveProductAction} className="mt-6 max-w-3xl space-y-6">
       {product && <input type="hidden" name="id" value={product.id} />}
@@ -35,6 +42,8 @@ export function ProductForm({ product }: { product?: Product }) {
         </label>
       </section>
 
+      <BundleBuilder products={allProducts} initial={product?.bundle_items ?? []} editingId={product?.id} />
+
       <section className="rounded-2xl border border-brand-100 bg-white p-6">
         <h2 className="font-display text-lg font-bold text-brand-800">Price &amp; stock</h2>
         <p className="mt-1 text-xs text-ink/50">The discount percentage is calculated automatically from the MRP and the selling price.</p>
@@ -51,6 +60,9 @@ export function ProductForm({ product }: { product?: Product }) {
           <label className="text-sm font-medium">
             Stock (pieces) *
             <input name="stock" type="number" min={0} required defaultValue={product?.stock ?? 100} className={field} />
+            <span className="mt-1 block text-[11px] leading-snug text-ink/50">
+              Ignored for a combo — its availability comes from the products inside it.
+            </span>
           </label>
         </div>
       </section>

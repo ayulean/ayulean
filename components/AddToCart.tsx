@@ -11,7 +11,7 @@ export function AddToCart({ product }: { product: Product }) {
   const router = useRouter();
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
-  const out = product.stock <= 0;
+  const out = product.available <= 0;
 
   const payload = {
     productId: product.id,
@@ -38,14 +38,18 @@ export function AddToCart({ product }: { product: Product }) {
           <button
             type="button"
             aria-label="Increase quantity"
-            onClick={() => setQty((q) => Math.min(10, q + 1))}
+            onClick={() => setQty((q) => Math.min(Math.min(10, product.available), q + 1))}
             className="h-11 w-11 rounded-r-full text-lg font-bold text-brand-700 hover:bg-brand-50"
           >
             +
           </button>
         </div>
         <span className="text-sm text-ink/60">
-          {out ? "Currently out of stock" : `${product.stock} in stock`}
+          {out
+            ? "Currently out of stock"
+            : product.isBundle
+              ? `${product.available} combos available`
+              : `${product.available} in stock`}
         </span>
       </div>
 

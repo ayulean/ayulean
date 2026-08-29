@@ -56,7 +56,7 @@ export async function POST(req: Request) {
       return Response.json({ error: "A product in your cart is no longer available." }, { status: 400 });
 
     const qty = Math.min(Math.max(1, Math.floor(Number(raw.qty) || 1)), 10);
-    if (p.stock < qty)
+    if (p.available < qty)
       return Response.json({ error: `We do not have that many units of ${p.name} in stock.` }, { status: 400 });
 
     items.push({ productId: p.id, slug: p.slug, name: p.name, image: p.image, price: p.price, mrp: p.mrp, qty });
