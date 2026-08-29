@@ -12,10 +12,12 @@ full admin panel where you can add more products, prices, discounts and coupons 
 ### Step 1 — create the Supabase project
 
 1. Sign up at [supabase.com](https://supabase.com) and create a new project (the free tier is enough).
-2. Open **SQL Editor → New query**, paste the entire contents of [`supabase/schema.sql`](supabase/schema.sql)
-   and hit **Run**. This creates every table, the rating view, the stock function and the security
-   rules, and seeds the "Ayurvedic Supplement" product with 5 sample reviews and 2 coupons
-   (`AYULEAN10`, `FLAT100`). The script is safe to run more than once.
+2. Open **SQL Editor → New query** and run these two files in order — both are safe to re-run:
+   - [`supabase/schema.sql`](supabase/schema.sql) — tables, rating view, stock function, security
+     rules, and the seed product plus 2 coupons (`AYULEAN10`, `FLAT100`).
+   - [`supabase/migrations/002_features.sql`](supabase/migrations/002_features.sql) — courier
+     tracking, stock release on cancellation, per-customer coupon limits, replacement requests and
+     API rate limiting.
 3. Go to **Project Settings → API** and copy the **Project URL** and the **`service_role`** key.
 
 ### Step 2 — run the app
@@ -60,6 +62,13 @@ Set these in `.env.local` (already created) — `.env.example` is the reference:
 | `ADMIN_SECRET` | Signs the admin session cookie — use a long random string in production |
 | `RAZORPAY_KEY_ID` | Razorpay Key ID (for online payment) |
 | `RAZORPAY_KEY_SECRET` | Razorpay Key Secret |
+| `RESEND_API_KEY` | Resend key for order emails. Empty = emails are only logged |
+| `ORDER_FROM_EMAIL` | Sender shown on order emails |
+| `ORDER_NOTIFY_EMAIL` | Where new-order alerts are sent to you |
+| `NEXT_PUBLIC_SITE_URL` | Public URL, used for the sitemap, canonical links and OG tags |
+| `NEXT_PUBLIC_GSTIN` | Your GSTIN, printed on invoices |
+| `NEXT_PUBLIC_GA_ID` | Google Analytics 4 ID. Empty = analytics never loads |
+| `NEXT_PUBLIC_META_PIXEL_ID` | Meta Pixel ID. Empty = pixel never loads |
 
 **To turn on online payment:** generate keys from dashboard.razorpay.com → Settings → API Keys,
 put them in `.env.local` and restart the server. While the keys are empty, the site
@@ -78,6 +87,8 @@ automatically runs in **COD-only mode** (checkout shows only Cash on Delivery).
 | `/checkout` | Address form, coupon, Cash on Delivery or online payment |
 | `/order/[orderNo]` | Order confirmation |
 | `/track` | Order tracking by order number + mobile number |
+| `/wishlist` | Saved products (kept in the browser) |
+| `/replacement` | 7-day replacement request form |
 | `/about`, `/contact` | Brand info and contact (Sector 13 Karnal, +91 7082042004) |
 | `/policies/replacement` | 7-Day Replacement Policy |
 | `/policies/shipping`, `/policies/privacy`, `/policies/terms` | Other policies |
@@ -91,19 +102,33 @@ automatically runs in **COD-only mode** (checkout shows only Cash on Delivery).
 | Coupons | Create percent or flat discount coupons — minimum order, max discount cap, expiry date, usage limit |
 | Orders | Full order details, status updates (placed → confirmed → shipped → delivered), WhatsApp link |
 | Reviews | Approve, hide or delete customer reviews, or add one yourself |
+| Replacements | Customer replacement requests with status and internal notes |
+| Invoice | A printable GST invoice per order (Orders → Print invoice) |
 
 **Note:** a review submitted by a customer stays *pending* and appears on the website only after
 an admin approves it (this keeps spam out).
 
 ---
 
-## 4. Changing product images
+## 4. Product images
 
-1. Put your image file in the `public/img/` folder (for example `public/img/bottle.jpg`).
-2. Go to Admin → Products → Edit and enter `/img/bottle.jpg` under **Main image**.
-3. In the gallery box, add one image path per line.
+Go to **Admin → Products → Edit → Upload images**. Files go to the public `product-images`
+bucket in Supabase Storage and the main-image and gallery fields fill in automatically.
+JPG, PNG, WebP and AVIF up to 5 MB each.
 
-The logo lives at `public/img/logo.jpeg` (the original copy is also kept in `img/logo.jpeg`).
+You can still paste a local path instead — put the file in `public/img/` and enter
+`/img/bottle.jpg`. The logo lives at `public/img/logo.jpeg`.
+
+---
+
+## 4a. Order emails
+
+Order confirmations (to the customer), new-order alerts (to you) and shipping updates all go out
+through [Resend](https://resend.com). Set `RESEND_API_KEY` and `ORDER_NOTIFY_EMAIL` to switch them
+on — until then every email is written to the server console instead, so nothing breaks.
+
+For production, verify your own domain in Resend and change `ORDER_FROM_EMAIL` to an address on
+that domain; the default `onboarding@resend.dev` is only meant for testing.
 
 ---
 
@@ -115,8 +140,12 @@ The logo lives at `public/img/logo.jpeg` (the original copy is also kept in `img
   are never trusted, so prices cannot be tampered with.
 - COD orders are confirmed immediately; online orders are confirmed only after the Razorpay
   signature is verified (`app/api/payments/verify/route.ts`).
-- Stock and coupon usage are updated through the `reserve_stock_and_coupon` Postgres function, so
-  both change together in one transaction and can never drift apart.
+- Stock and coupon usage are updated through the `reserve_order_stock` / `release_order_stock`
+  Postgres functions. Both are guarded by `orders.stock_reserved`, so a retry, a double click or a
+  duplicate webhook can never move stock twice — and cancelling an order puts the stock back.
+- Coupons support a global usage limit *and* a per-customer limit, checked against the phone number.
+- The order, review and replacement endpoints are rate limited per IP through Postgres, so the limit
+  holds across server instances.
 
 ---
 
@@ -131,7 +160,11 @@ lib/site.ts        → brand name, phone, address, shipping rules — edit this 
 lib/supabase.ts    → server-side Supabase client
 lib/queries.ts     → all read queries
 lib/actions.ts     → admin server actions
-supabase/schema.sql → tables, view, stock function, security rules and seed data
+lib/notify.ts      → order emails (Resend)
+lib/storage.ts     → product image uploads (Supabase Storage)
+lib/ratelimit.ts   → Postgres-backed rate limiting
+tests/             → vitest unit tests (npm test)
+supabase/          → schema.sql + migrations/
 ```
 
 ---
@@ -154,5 +187,17 @@ Set the same environment variables on your host, then make sure you:
 - Change `ADMIN_PASSWORD` and generate a long random `ADMIN_SECRET`.
 - Add your **live** Razorpay keys.
 - Update the support email in `lib/site.ts` (currently the placeholder `support@ayulean.in`).
+- Set `NEXT_PUBLIC_SITE_URL` to your real domain so the sitemap and OG tags are correct.
 - Turn on Point-in-Time Recovery or scheduled backups in Supabase (free projects also pause after a
   week of inactivity — open the dashboard to wake one up).
+
+---
+
+## 9. Testing
+
+```bash
+npm test          # run once
+npm run test:watch
+npm run build     # type-check + production build
+npx eslint .      # lint
+```
