@@ -4,10 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { ADMIN_PASSWORD, clearAdminCookie, isAdmin, setAdminCookie } from "./auth";
 import { parseBundleItems } from "./bundle";
-import { sendShippingUpdate } from "./notify";
-import { cancelOrder, releaseOrderStock, reserveOrderStock } from "./orders";
+import { sendReplacementStatusEmail, sendShippingUpdate } from "./notify";
+import { releaseOrderStock, reserveOrderStock } from "./orders";
 import { getOrderByNo } from "./queries";
 import { db, unwrap } from "./supabase";
+import type { ReplacementStatus } from "./types";
 
 async function guard() {
   if (!(await isAdmin())) redirect("/admin/login");
@@ -287,10 +288,38 @@ export async function updateReplacementAction(formData: FormData) {
   const id = Number(formData.get("id") ?? 0);
   const status = String(formData.get("status") ?? "");
   const adminNote = String(formData.get("admin_note") ?? "").trim();
+  const customerMessage = String(formData.get("customer_message") ?? "").trim().slice(0, 500);
   if (!id || !["open", "approved", "rejected", "completed"].includes(status)) return;
 
-  const res = await db().from("replacement_requests").update({ status, admin_note: adminNote }).eq("id", id);
+  const before = unwrap<Array<{ status: string; order_no: string; name: string }>>(
+    await db().from("replacement_requests").select("status, order_no, name").eq("id", id).limit(1),
+    "Failed to load request"
+  )[0];
+
+  const res = await db()
+    .from("replacement_requests")
+    .update({
+      status,
+      admin_note: adminNote,
+      customer_message: customerMessage,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
   if (res.error) throw new Error(`Failed to update request: ${res.error.message}`);
 
-  revalidatePath("/admin/replacements");
+  // Only email on a real change, so re-saving a note does not spam the customer.
+  if (before && before.status !== status) {
+    const order = await getOrderByNo(before.order_no);
+    if (order?.email) {
+      void sendReplacementStatusEmail({
+        to: order.email,
+        name: before.name,
+        orderNo: before.order_no,
+        status: status as ReplacementStatus,
+        customerMessage,
+      });
+    }
+  }
+
+  revalidatePath("/", "layout");
 }

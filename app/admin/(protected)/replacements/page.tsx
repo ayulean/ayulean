@@ -51,7 +51,11 @@ export default async function AdminReplacementsPage() {
               <p className="mt-3 text-sm font-medium text-ink/85">{r.reason}</p>
               <p className="mt-1 text-sm leading-relaxed text-ink/70">{r.details}</p>
 
-              <form action={updateReplacementAction} className="mt-4 flex flex-wrap items-end gap-3">
+              <p className="mt-3 text-xs text-ink/50">
+                Changing the status emails the customer and updates what they see on their order page.
+              </p>
+
+              <form action={updateReplacementAction} className="mt-3 flex flex-wrap items-end gap-3">
                 <input type="hidden" name="id" value={r.id} />
                 <label className="text-xs font-medium">
                   Status
@@ -67,11 +71,21 @@ export default async function AdminReplacementsPage() {
                     ))}
                   </select>
                 </label>
-                <label className="min-w-48 flex-1 text-xs font-medium">
+                <label className="min-w-40 flex-1 text-xs font-medium">
                   Internal note
                   <input
                     name="admin_note"
                     defaultValue={r.admin_note}
+                    placeholder="Only you see this"
+                    className="mt-1 w-full rounded-lg border border-brand-200 bg-white px-3 py-2 text-sm"
+                  />
+                </label>
+                <label className="min-w-48 flex-1 text-xs font-medium">
+                  Message to customer
+                  <input
+                    name="customer_message"
+                    defaultValue={r.customer_message}
+                    placeholder="Shown to the customer and emailed"
                     className="mt-1 w-full rounded-lg border border-brand-200 bg-white px-3 py-2 text-sm"
                   />
                 </label>

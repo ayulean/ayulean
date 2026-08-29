@@ -23,6 +23,8 @@ full admin panel where you can add more products, prices, discounts and coupons 
      customer accounts, profiles and per-customer order access.
    - [`supabase/migrations/005_order_cancellation.sql`](supabase/migrations/005_order_cancellation.sql) —
      customer-initiated order cancellation.
+   - [`supabase/migrations/006_replacement_status.sql`](supabase/migrations/006_replacement_status.sql) —
+     replacement status visible to the customer.
 3. Go to **Project Settings → API** and copy the **Project URL** and the **`service_role`** key.
 
 ### Step 2 — run the app
@@ -272,6 +274,14 @@ Cancelling puts the stock and coupon usage back automatically.
 
 Admins can still cancel from any status in the admin panel — a shipped parcel can be recalled by
 phone. Cancellations record who did it and why.
+
+**Replacement status.** Once a customer raises a replacement request they can follow it on their
+order page, on Track Order and under My Orders — with a progress bar and plain-English wording
+("Under review", "Approved", "Replacement sent", "Not approved") rather than the raw database
+status. Changing the status in the admin panel emails the customer.
+
+The admin form has two note fields, deliberately separate: **Internal note** is only ever seen by
+you, while **Message to customer** is shown on their order page and included in the email.
 
 ---
 

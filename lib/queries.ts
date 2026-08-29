@@ -165,6 +165,38 @@ export async function getReplacementRequests(): Promise<ReplacementRequest[]> {
   );
 }
 
+/** The latest replacement request for one order, if there is one. */
+export async function getReplacementForOrder(orderNo: string): Promise<ReplacementRequest | null> {
+  const rows = unwrap<ReplacementRequest[]>(
+    await db()
+      .from("replacement_requests")
+      .select("*")
+      .eq("order_no", orderNo)
+      .order("id", { ascending: false })
+      .limit(1),
+    "Failed to load replacement request"
+  );
+  return rows[0] ?? null;
+}
+
+/** Latest replacement request per order, for listing several orders at once. */
+export async function getReplacementsByOrderNos(orderNos: string[]): Promise<Map<string, ReplacementRequest>> {
+  if (orderNos.length === 0) return new Map();
+
+  const rows = unwrap<ReplacementRequest[]>(
+    await db()
+      .from("replacement_requests")
+      .select("*")
+      .in("order_no", orderNos)
+      .order("id", { ascending: false }),
+    "Failed to load replacement requests"
+  );
+
+  const map = new Map<string, ReplacementRequest>();
+  for (const r of rows) if (!map.has(r.order_no)) map.set(r.order_no, r);
+  return map;
+}
+
 /* ---------------- dashboard ---------------- */
 
 export async function dashboardStats() {

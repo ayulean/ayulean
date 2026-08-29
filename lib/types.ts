@@ -121,7 +121,11 @@ export type ReplacementRequest = {
   phone: string;
   reason: string;
   details: string;
-  status: "open" | "approved" | "rejected" | "completed";
+  status: ReplacementStatus;
   admin_note: string;
+  customer_message: string;
+  updated_at: string;
   created_at: string;
 };
+
+export type ReplacementStatus = "open" | "approved" | "rejected" | "completed";

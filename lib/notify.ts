@@ -1,6 +1,7 @@
 import { money } from "./pricing";
+import { REPLACEMENT_STATUS } from "./replacement";
 import { SITE } from "./site";
-import type { Order } from "./types";
+import type { Order, ReplacementStatus } from "./types";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY ?? "";
 const FROM = process.env.ORDER_FROM_EMAIL || "AyuLean <onboarding@resend.dev>";
@@ -161,6 +162,38 @@ export async function sendReplacementAlert(input: {
          Reason: <strong>${input.reason}</strong>
        </p>
        <p style="font-size:14px;line-height:1.6">${input.details || "(no extra details)"}</p>`
+    )
+  );
+}
+
+/** Tells the customer their replacement request has been decided. */
+export async function sendReplacementStatusEmail(input: {
+  to: string;
+  name: string;
+  orderNo: string;
+  status: ReplacementStatus;
+  customerMessage: string;
+}) {
+  if (!input.to) return;
+
+  const info = REPLACEMENT_STATUS[input.status] ?? REPLACEMENT_STATUS.open;
+
+  await send(
+    input.to,
+    `Replacement request for ${input.orderNo} — ${info.label}`,
+    shell(
+      `Replacement ${info.label.toLowerCase()}`,
+      `<p style="font-size:14px;line-height:1.6">Hi ${input.name},</p>
+       <p style="font-size:14px;line-height:1.6">
+         Your replacement request for order <strong>${input.orderNo}</strong> is now marked
+         <strong>${info.label}</strong>.
+       </p>
+       <p style="font-size:14px;line-height:1.6">${info.detail}</p>
+       ${
+         input.customerMessage
+           ? `<p style="font-size:14px;line-height:1.6;background:#fdfaf3;padding:12px;border-radius:8px">${input.customerMessage}</p>`
+           : ""
+       }`
     )
   );
 }

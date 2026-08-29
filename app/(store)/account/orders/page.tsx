@@ -3,8 +3,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import AccountsDisabled from "@/components/account/AccountsDisabled";
 import CancelOrderButton from "@/components/CancelOrderButton";
+import ReplacementStatusCard from "@/components/ReplacementStatusCard";
 import { accountsEnabled, currentUser, customerClient } from "@/lib/auth-customer";
 import { canCancel } from "@/lib/orders";
+import { getReplacementsByOrderNos } from "@/lib/queries";
 import { money } from "@/lib/pricing";
 import { SITE } from "@/lib/site";
 import type { Order } from "@/lib/types";
@@ -23,6 +25,7 @@ export default async function MyOrdersPage() {
   const supabase = await customerClient();
   const { data } = await supabase.from("orders").select("*").order("id", { ascending: false });
   const orders = (data ?? []) as Order[];
+  const replacements = await getReplacementsByOrderNos(orders.map((o) => o.order_no));
 
   return (
     <div className="container-x py-14">
@@ -57,7 +60,15 @@ export default async function MyOrdersPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-medium text-brand-700">
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-medium ${
+                        o.status === "cancelled"
+                          ? "bg-red-100 text-red-700"
+                          : o.status === "delivered"
+                            ? "bg-brand-600 text-white"
+                            : "bg-brand-100 text-brand-700"
+                      }`}
+                    >
                       {o.status}
                     </span>
                     <span className="font-bold text-brand-700">{money(o.total)}</span>
@@ -98,6 +109,12 @@ export default async function MyOrdersPage() {
                   </a>
                   {canCancel(o.status) && <CancelOrderButton orderNo={o.order_no} />}
                 </div>
+
+                {replacements.has(o.order_no) && (
+                  <div className="mt-4">
+                    <ReplacementStatusCard request={replacements.get(o.order_no)!} />
+                  </div>
+                )}
               </article>
             ))}
           </div>

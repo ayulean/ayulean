@@ -3,7 +3,8 @@ import Link from "next/link";
 import CancelOrderButton from "@/components/CancelOrderButton";
 import { canCancel } from "@/lib/orders";
 import { money } from "@/lib/pricing";
-import { getOrderByNo } from "@/lib/queries";
+import ReplacementStatusCard from "@/components/ReplacementStatusCard";
+import { getOrderByNo, getReplacementForOrder } from "@/lib/queries";
 import { SITE } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ export default async function TrackPage({ searchParams }: PageProps<"/track">) {
   // Details are shown only when both the order number and the registered phone match.
   const matched = order && phone && order.phone.endsWith(phone.slice(-10)) ? order : null;
   const searched = Boolean(orderNo && phone);
+  const replacement = matched ? await getReplacementForOrder(matched.order_no) : null;
 
   return (
     <div className="container-x py-14">
@@ -138,6 +140,12 @@ export default async function TrackPage({ searchParams }: PageProps<"/track">) {
             {canCancel(matched.status) && (
               <div className="mt-5">
                 <CancelOrderButton orderNo={matched.order_no} phone={phone} />
+              </div>
+            )}
+
+            {replacement && (
+              <div className="mt-5">
+                <ReplacementStatusCard request={replacement} />
               </div>
             )}
 

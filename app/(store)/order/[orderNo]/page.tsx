@@ -5,7 +5,8 @@ import CancelOrderButton from "@/components/CancelOrderButton";
 import { TrackPurchase } from "@/components/TrackEvent";
 import { money } from "@/lib/pricing";
 import { canCancel } from "@/lib/orders";
-import { getOrderByNo } from "@/lib/queries";
+import ReplacementStatusCard from "@/components/ReplacementStatusCard";
+import { getOrderByNo, getReplacementForOrder } from "@/lib/queries";
 import { SITE } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +21,7 @@ export default async function OrderPage({ params }: PageProps<"/order/[orderNo]"
   const items = order.items;
   const paid = order.payment_status === "paid";
   const cancellable = canCancel(order.status);
+  const replacement = await getReplacementForOrder(order.order_no);
 
   return (
     <div className="container-x py-14">
@@ -96,6 +98,12 @@ export default async function OrderPage({ params }: PageProps<"/order/[orderNo]"
             2–5 working days. The {SITE.replacementDays}-day replacement policy applies.
           </p>
         </div>
+
+        {replacement && (
+          <div className="mt-8">
+            <ReplacementStatusCard request={replacement} />
+          </div>
+        )}
 
         {order.status === "cancelled" && (
           <p className="mt-8 rounded-xl bg-red-50 p-4 text-center text-sm text-red-700">
