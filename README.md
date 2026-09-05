@@ -1,4 +1,4 @@
-# AyuLean — Ayurvedic Supplement Store
+# Angad Ayurveda — Ayurvedic Supplement Store
 
 A single-product e-commerce website (in the style of ayuvya.com), built with Next.js 16
 (App Router), TypeScript, Tailwind CSS v4 and Supabase (Postgres). It supports Cash on Delivery
@@ -46,7 +46,7 @@ npm run dev
 ```
 
 Website: http://localhost:3000
-Admin panel: http://localhost:3000/admin — default password **`ayulean@123`**
+Admin panel: http://localhost:3000/admin — default password **`angad@123`**
 
 Until the Supabase keys are filled in, every page shows a short setup screen instead of the store.
 
@@ -141,7 +141,7 @@ bucket in Supabase Storage and the main-image and gallery fields fill in automat
 JPG, PNG, WebP and AVIF up to 5 MB each.
 
 You can still paste a local path instead — put the file in `public/img/` and enter
-`/img/bottle.jpg`. The logo lives at `public/img/logo.jpeg`.
+`/img/bottle.jpg`. The logo lives at `public/img/angad-logo.jpeg`.
 
 ---
 
@@ -172,7 +172,7 @@ registrar. When the domain shows **Verified**, set the sender and redeploy:
 
 ```bash
 vercel env rm ORDER_FROM_EMAIL production --yes
-echo "AyuLean <orders@yourdomain.in>" | vercel env add ORDER_FROM_EMAIL production
+echo "Angad Ayurveda <orders@yourdomain.in>" | vercel env add ORDER_FROM_EMAIL production
 vercel --prod
 ```
 
@@ -187,7 +187,7 @@ reject it as spoofing. So:
 
 - `ORDER_FROM_EMAIL` must be on a domain verified in Resend (e.g. `orders@ayulean.in`). Until you
   have one, keep Resend's test sender `onboarding@resend.dev` — the display name is still yours,
-  so it shows as "AyuLean".
+  so it shows as "Angad Ayurveda".
 - `ORDER_REPLY_TO` is set to `ayuleanveda@gmail.com`, so when a customer hits Reply the message
   lands in that Gmail inbox regardless of the technical sender.
 - `ORDER_NOTIFY_EMAIL` is also `ayuleanveda@gmail.com` — every new order alert goes there.
@@ -306,6 +306,81 @@ tracking number it is flagged, because the customer would otherwise have nothing
 
 Two note fields are deliberately kept separate: **Internal note** is only ever seen by you, while
 **Message to customer** appears on their order page and in the email.
+
+---
+
+## 4e. Payment gateway onboarding (Razorpay & alternatives)
+
+Razorpay declined this website with:
+
+> businesses operating in Ayurvedic supplements falls outside the categories we currently support
+
+That is a **category / underwriting decision**, not a bug in this code. Ayurvedic and nutraceutical
+sellers sit in Razorpay's restricted list: they are onboarded, but only through a manual review that
+needs licence documents, and the automated first-pass check rejects an application when the website
+shows supplement signals with no visible licence or seller information. Nothing you change in the UI
+alone will flip that — you have to come back with the documents. **Do not** re-apply describing the
+business as something it is not (cosmetics, general merchandise, a "wellness store"). Misdescribing
+the business to a payment gateway is a KYC breach: it gets the account frozen after the first
+chargeback and the settlements held.
+
+### What the site now shows them
+
+Everything a risk reviewer looks for is rendered from `COMPLIANCE` in [`lib/site.ts`](lib/site.ts),
+driven by the `NEXT_PUBLIC_*` variables in [`.env.example`](.env.example). **Fill these in and
+redeploy before re-applying** — while they are blank the site displays no licence at all, which is
+what triggered the rejection:
+
+| Variable | What goes in it |
+| --- | --- |
+| `NEXT_PUBLIC_LEGAL_NAME` | The registered entity on the bank account you gave Razorpay. It must match exactly. |
+| `NEXT_PUBLIC_FSSAI` | Your 14-digit FSSAI licence as the seller/marketer. |
+| `NEXT_PUBLIC_AYUSH_LICENCE` | The AYUSH / State Drug Controller Ayurvedic manufacturing licence. |
+| `NEXT_PUBLIC_MANUFACTURER`, `..._ADDRESS`, `..._FSSAI` | Contract manufacturer details as printed on the label. |
+| `NEXT_PUBLIC_GSTIN` | Same GSTIN as on the application. |
+
+They appear in the footer, in a **Product & seller information** panel on the product page, and at
+the bottom of every policy page. A full **Cancellation & Refund Policy** now lives at
+`/policies/refund` — a separate, linked refund policy is a hard requirement on the checklist, and
+burying refunds inside the replacement page does not satisfy it.
+
+### The six pages the checklist wants, and where they are
+
+About Us `/about` · Contact Us `/contact` · Terms `/policies/terms` · Privacy `/policies/privacy` ·
+Shipping `/policies/shipping` · **Cancellation & Refund `/policies/refund`**. All six are linked from
+the footer on every page, which is where the reviewer looks for them.
+
+### Re-applying to Razorpay
+
+Reply on the same support ticket (do not open a fresh application — a second rejection on a new
+ticket is harder to overturn) and ask for a **manual review under the nutraceutical / Ayurvedic
+category**, attaching:
+
+1. FSSAI licence certificate.
+2. AYUSH / Ayurvedic manufacturing licence, plus the manufacturing agreement if it is contract-made.
+3. GST certificate and the entity's incorporation or Udyam registration.
+4. Clear photographs of the actual product label — front, back and the ingredient panel.
+5. The third-party lab test / CoA for a recent batch.
+6. A line stating the product is a food supplement making no disease-treatment claim, with a link to
+   the disclaimer on the product page.
+
+### If they decline again
+
+Ayurvedic supplements are routinely approved by **Cashfree, PayU, CCAvenue, Easebuzz and PhonePe
+Payment Gateway** with the same document set. Cashfree and PayU are the usual fallbacks here.
+Whichever you pick, only [`lib/razorpay.ts`](lib/razorpay.ts) and the two `RAZORPAY_*` variables have
+to change — the checkout flow, order records and webhook handling around it stay as they are.
+
+Until any gateway is live the site runs COD-only on its own, with no code change: leave
+`RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` empty.
+
+### Claims are the other half of this
+
+A supplement site is also rejected for claiming to treat something. This repo keeps the product
+copy to "supports metabolism / digestion / energy" and carries a not-a-medicine disclaimer. Keep it
+that way in the admin panel: no "cure", no "treats obesity", no "guaranteed weight loss", no
+before/after photos, no invented customer counts or ratings. Those same words also attract action
+under the Drugs and Magic Remedies Act and the CCPA advertising rules, quite apart from the gateway.
 
 ---
 

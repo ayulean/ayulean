@@ -1,5 +1,5 @@
 -- ============================================================================
---  AyuLean — migration 005
+--  Angad Ayurveda — migration 005
 --  Customer-initiated order cancellation.
 --  Run once in Supabase → SQL Editor. Safe to run more than once.
 -- ============================================================================

@@ -4,7 +4,7 @@ import { SITE } from "./site";
 import type { Order, ReplacementStatus } from "./types";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY ?? "";
-const FROM = process.env.ORDER_FROM_EMAIL || "AyuLean <onboarding@resend.dev>";
+const FROM = process.env.ORDER_FROM_EMAIL || "Angad Ayurveda <onboarding@resend.dev>";
 const ADMIN_EMAIL = process.env.ORDER_NOTIFY_EMAIL ?? "";
 /** Replies to any order email land here, whatever the technical sender is. */
 const REPLY_TO = process.env.ORDER_REPLY_TO || SITE.email;

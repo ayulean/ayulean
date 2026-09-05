@@ -54,13 +54,13 @@ export default async function ProductsPage({ searchParams }: PageProps<"/product
           defaultValue={q}
           placeholder="Search products, ingredients or benefits"
           aria-label="Search products"
-          className="flex-1 rounded-full border border-brand-200 px-5 py-3 text-sm focus:border-brand-500 focus:outline-none"
+          className="flex-1 rounded-full border border-brand-200 px-5 py-3 text-sm transition-colors duration-200 focus:border-brand-500 focus:outline-none"
         />
         <select
           name="sort"
           defaultValue={sort}
           aria-label="Sort products"
-          className="rounded-full border border-brand-200 px-4 py-3 text-sm focus:border-brand-500 focus:outline-none"
+          className="rounded-full border border-brand-200 px-4 py-3 text-sm transition-colors duration-200 focus:border-brand-500 focus:outline-none"
         >
           {SORTS.map((s) => (
             <option key={s.value} value={s.value}>
@@ -70,7 +70,7 @@ export default async function ProductsPage({ searchParams }: PageProps<"/product
         </select>
         <button
           type="submit"
-          className="rounded-full bg-brand-600 px-7 py-3 text-sm font-semibold text-white hover:bg-brand-700"
+          className="rounded-full bg-brand-600 px-7 py-3 text-sm font-semibold text-white shadow-sm shadow-brand-600/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-md"
         >
           Apply
         </button>
@@ -88,8 +88,8 @@ export default async function ProductsPage({ searchParams }: PageProps<"/product
         </p>
       ) : (
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {sorted.map((p) => (
-            <ProductCard key={p.id} product={p} />
+          {sorted.map((p, i) => (
+            <ProductCard key={p.id} product={p} index={i} />
           ))}
         </div>
       )}

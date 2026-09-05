@@ -51,17 +51,221 @@ body {
   animation: marquee 26s linear infinite;
 }
 
+input, select, textarea {
+  font: inherit;
+}
+
+/* ---------------------------------------------------------------------------
+   Motion system
+   One place for every duration, easing and keyframe the site uses, so the
+   whole store animates with the same rhythm. Everything degrades to "no
+   animation, content simply visible" when the browser lacks support or the
+   visitor has asked for reduced motion.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --dur-fast: 160ms;
+  --dur-base: 260ms;
+  --dur-slow: 520ms;
+
+  /* View transitions */
+  --dur-exit:  150ms;
+  --dur-enter: 210ms;
+  --dur-move:  400ms;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* The hero bottle drifts, so the page never feels completely static. */
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-14px); }
+}
+
+/* Soft breathing glow behind the hero image. */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50%      { opacity: 0.75; transform: scale(1.06); }
+}
+
+/* Cart badge kick when the count changes. */
+@keyframes pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+/* Skeleton sweep. */
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
 @keyframes marquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track { animation: none; }
+/* --- Entrance helpers (time based, for content above the fold) ------------ */
+
+.anim-fade-up  { animation: fade-up  var(--dur-slow) var(--ease-out-soft) both; }
+.anim-fade-in  { animation: fade-in  var(--dur-slow) var(--ease-out-soft) both; }
+.anim-scale-in { animation: scale-in var(--dur-base) var(--ease-spring)   both; }
+.anim-float    { animation: float-y 7s ease-in-out infinite; }
+.anim-glow     { animation: glow-pulse 7s ease-in-out infinite; }
+.anim-pop      { animation: pop var(--dur-base) var(--ease-spring); }
+
+/* Stagger: set --i on each child and they arrive one after another. */
+[style*="--i"].anim-fade-up,
+[style*="--i"].anim-fade-in,
+[style*="--i"].anim-scale-in {
+  animation-delay: calc(var(--i) * 90ms);
 }
 
-input, select, textarea {
-  font: inherit;
+/* --- Scroll reveal --------------------------------------------------------
+   Driven entirely by the scroll-driven animations API, so there is no
+   IntersectionObserver and no client component behind it. Browsers without
+   `animation-timeline` skip the whole block and render the content normally.
+   -------------------------------------------------------------------------- */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Longhands on purpose: `animation-duration` is left at its initial
+       `auto`, which is what makes the animation span the range below instead
+       of running on a clock. The `animation` shorthand would reset it. */
+    .reveal {
+      animation-name: fade-up;
+      animation-fill-mode: both;
+      animation-timing-function: var(--ease-out-soft);
+      animation-timeline: view();
+      animation-range: entry 5% cover 22%;
+    }
+
+    /* Cards sharing a row would otherwise land together, so each one starts a
+       sliver of scroll later than the last. */
+    .reveal[style*="--i"] {
+      animation-range-start: entry calc(5% + var(--i) * 2%);
+      animation-range-end: cover 26%;
+    }
+  }
+}
+
+/* --- Interaction ---------------------------------------------------------- */
+
+.lift {
+  transition:
+    transform var(--dur-base) var(--ease-out-soft),
+    box-shadow var(--dur-base) var(--ease-out-soft),
+    border-color var(--dur-base) var(--ease-out-soft);
+}
+.lift:hover { transform: translateY(-4px); }
+
+/* Every button and link dips slightly when pressed — the whole site feels
+   physical for the cost of one rule. */
+button:not(:disabled):active,
+a:active {
+  transform: scale(0.97);
+}
+button, a { transition: transform var(--dur-fast) var(--ease-out-soft); }
+
+/* A visible, on-brand focus ring instead of the browser default. */
+:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* --- Skeletons ------------------------------------------------------------ */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-brand-50) 25%,
+    var(--color-brand-100) 37%,
+    var(--color-brand-50) 63%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+/* --- FAQ accordion -------------------------------------------------------- */
+
+details[open] > .details-body {
+  animation: fade-up var(--dur-base) var(--ease-out-soft) both;
+}
+
+/* ---------------------------------------------------------------------------
+   View transitions
+   Route changes morph the product image from the card into the detail hero,
+   and slide forward/back so the visitor keeps their bearings.
+   --------------------------------------------------------------------------- */
+
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-group(.morph) {
+  animation-duration: var(--dur-move);
+}
+::view-transition-image-pair(.morph) {
+  animation-name: via-blur;
+}
+@keyframes via-blur {
+  30% { filter: blur(3px); }
+}
+
+/* The header is the visitor's fixed anchor — it must not slide with the page. */
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header) { display: none; }
+::view-transition-new(site-header) { animation: none; }
+
+/* ---------------------------------------------------------------------------
+   Reduced motion
+   One blanket switch. Anything added above is covered by it automatically.
+   --------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
 }
 
 /* ---------------------------------------------------------------------------

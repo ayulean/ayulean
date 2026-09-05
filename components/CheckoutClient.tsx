@@ -324,7 +324,7 @@ export function CheckoutClient({
                 <input
                   value={coupon}
                   onChange={(e) => setCoupon(e.target.value.toUpperCase())}
-                  placeholder="AYULEAN10"
+                  placeholder="ANGAD10"
                   className="flex-1 rounded-lg border border-brand-200 px-3 py-2.5 text-sm uppercase"
                 />
                 <button

@@ -11,7 +11,7 @@ import WishlistButton from "@/components/WishlistButton";
 import Image from "next/image";
 import { money } from "@/lib/pricing";
 import { getProductBySlug, getProducts, getReviews, ratingBreakdown } from "@/lib/queries";
-import { SITE } from "@/lib/site";
+import { complianceRows, SITE } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +31,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
   const related = allProducts.filter((p) => p.id !== product.id).slice(0, 4);
   const breakdown = ratingBreakdown(reviews);
   const gallery = product.gallery.length ? product.gallery : [product.image];
+  const rows = complianceRows();
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -76,7 +77,7 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
       </nav>
 
       <div className="mt-6 grid gap-10 lg:grid-cols-2 lg:gap-14">
-        <ProductGallery images={gallery} alt={product.name} />
+        <ProductGallery images={gallery} alt={product.name} morphName={`product-image-${product.id}`} />
 
         <div>
           <h1 className="font-display text-3xl font-bold text-brand-900 lg:text-4xl">{product.name}</h1>
@@ -210,6 +211,33 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
               <p className="mt-3 text-sm leading-relaxed text-ink/70">{product.how_to_use}</p>
             </div>
           )}
+
+          <div className="rounded-2xl border border-brand-100 bg-cream p-6">
+            <h3 className="font-display text-lg font-bold text-brand-800">Product &amp; seller information</h3>
+            <dl className="mt-3 grid gap-x-4 gap-y-2 text-xs sm:grid-cols-[max-content_1fr]">
+              {rows.map((r) => (
+                <div key={r.label} className="contents">
+                  <dt className="font-semibold text-brand-800">{r.label}</dt>
+                  <dd className="text-ink/65">{r.value}</dd>
+                </div>
+              ))}
+              <div className="contents">
+                <dt className="font-semibold text-brand-800">Customer care</dt>
+                <dd className="text-ink/65">
+                  <a href={`tel:${SITE.phone.replace(/\s/g, "")}`} className="hover:underline">{SITE.phone}</a>
+                  {" · "}
+                  <a href={`mailto:${SITE.email}`} className="hover:underline">{SITE.email}</a>
+                </dd>
+              </div>
+            </dl>
+            <p className="mt-4 border-t border-brand-100 pt-4 text-xs leading-relaxed text-ink/55">
+              <strong>Disclaimer:</strong> This is an Ayurvedic food/dietary supplement, not a medicine. It is not
+              intended to diagnose, treat, cure or prevent any disease, and it is not a substitute for a balanced
+              diet. Results vary from person to person. Not recommended for anyone under 18. If you are pregnant,
+              breastfeeding, have a medical condition or are on ongoing medication, consult a qualified physician
+              before use. Keep out of reach of children. Store in a cool, dry place away from direct sunlight.
+            </p>
+          </div>
         </aside>
       </div>
 
@@ -218,8 +246,8 @@ export default async function ProductPage({ params }: PageProps<"/product/[slug]
         <section className="mt-16">
           <h2 className="font-display text-2xl font-bold text-brand-900">You may also like</h2>
           <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {related.map((p) => (
-              <ProductCard key={p.id} product={p} />
+            {related.map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} />
             ))}
           </div>
         </section>

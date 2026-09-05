@@ -25,7 +25,7 @@ export default async function AdminCouponsPage() {
           <form action={saveCouponAction} className="mt-4 space-y-4">
             <label className="block text-sm font-medium">
               Code *
-              <input name="code" required placeholder="AYULEAN10" className={`${field} uppercase`} />
+              <input name="code" required placeholder="ANGAD10" className={`${field} uppercase`} />
             </label>
 
             <div className="grid gap-4 sm:grid-cols-2">

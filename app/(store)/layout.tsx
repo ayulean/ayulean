@@ -1,3 +1,4 @@
+import BackToTop from "@/components/BackToTop";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import SetupNotice from "@/components/SetupNotice";
@@ -14,6 +15,7 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
       <Header userName={user ? displayName(user) : null} />
       <main className="flex-1">{children}</main>
       <Footer />
+      <BackToTop />
     </>
   );
 }

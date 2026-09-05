@@ -174,7 +174,7 @@ export default async function AdminOrdersPage() {
 
                     <a
                       href={`https://wa.me/91${o.phone.slice(-10)}?text=${encodeURIComponent(
-                        `Hi ${o.customer_name}, an update on your AyuLean order ${o.order_no}: `
+                        `Hi ${o.customer_name}, an update on your Angad Ayurveda order ${o.order_no}: `
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"

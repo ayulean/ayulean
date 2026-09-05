@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "AyuLean — Ayurvedic Supplement";
+export const alt = "Angad Ayurveda — Ayurvedic Supplement";
 
 export default function OpengraphImage() {
   return new ImageResponse(
@@ -20,7 +20,7 @@ export default function OpengraphImage() {
         }}
       >
         <div style={{ display: "flex", fontSize: 108, fontWeight: 700, color: "#21471f", letterSpacing: -2 }}>
-          AyuLean
+          Angad Ayurveda
         </div>
         <div style={{ display: "flex", marginTop: 16, fontSize: 40, color: "#2f6f2b" }}>Ayurvedic Supplement</div>
         <div style={{ display: "flex", marginTop: 28, fontSize: 26, color: "#4a5a46" }}>

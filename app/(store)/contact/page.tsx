@@ -51,7 +51,7 @@ export default function ContactPage() {
 
         <div className="mt-8 overflow-hidden rounded-2xl border border-brand-100">
           <iframe
-            title="AyuLean location — Sector 13, Karnal"
+            title="Angad Ayurveda location — Sector 13, Karnal"
             src="https://maps.google.com/maps?q=Sector%2013%20Karnal%20Haryana&t=&z=14&ie=UTF8&iwloc=&output=embed"
             className="h-80 w-full border-0"
             loading="lazy"

@@ -1,5 +1,5 @@
 -- ============================================================================
---  AyuLean — migration 007
+--  Angad Ayurveda — migration 007
 --  Gives a replacement its own shipment: courier, tracking number and dates.
 --  Run once in Supabase → SQL Editor. Safe to run more than once.
 -- ============================================================================

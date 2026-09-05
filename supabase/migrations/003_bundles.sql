@@ -1,5 +1,5 @@
 -- ============================================================================
---  AyuLean — migration 003
+--  Angad Ayurveda — migration 003
 --  Combo / bundle products: one sellable product made of two or more others.
 --  Run once in Supabase → SQL Editor. Safe to run more than once.
 -- ============================================================================

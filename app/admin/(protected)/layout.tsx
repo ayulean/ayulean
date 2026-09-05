@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import AdminNav from "@/components/admin/AdminNav";
 import SetupNotice from "@/components/SetupNotice";
 import { logoutAction } from "@/lib/actions";
 import { isAdmin } from "@/lib/auth";
@@ -8,15 +9,6 @@ import { SITE } from "@/lib/site";
 import { supabaseConfigured } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
-
-const NAV = [
-  { href: "/admin", label: "Dashboard", icon: "📊" },
-  { href: "/admin/products", label: "Products", icon: "📦" },
-  { href: "/admin/coupons", label: "Coupons", icon: "🏷️" },
-  { href: "/admin/orders", label: "Orders", icon: "🧾" },
-  { href: "/admin/reviews", label: "Reviews", icon: "⭐" },
-  { href: "/admin/replacements", label: "Replacements", icon: "🔄" },
-];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   if (!supabaseConfigured) return <SetupNotice />;
@@ -31,7 +23,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             alt={SITE.name}
             width={40}
             height={40}
-            className="h-10 w-10 rounded-full object-cover ring-1 ring-brand-200"
+            className="h-10 w-10 rounded-full object-cover ring-1 ring-brand-200 transition-transform duration-300 hover:scale-105"
           />
           <div>
             <p className="font-display text-lg font-bold leading-tight text-brand-800">{SITE.name}</p>
@@ -39,30 +31,19 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
         </div>
 
-        <nav className="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-col lg:overflow-visible">
-          {NAV.map((n) => (
-            <Link
-              key={n.href}
-              href={n.href}
-              className="flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-ink/75 hover:bg-brand-50 hover:text-brand-700"
-            >
-              <span aria-hidden="true">{n.icon}</span>
-              {n.label}
-            </Link>
-          ))}
-        </nav>
+        <AdminNav />
 
         <div className="hidden border-t border-brand-100 p-3 lg:block">
           <Link
             href="/"
-            className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-ink/75 hover:bg-brand-50"
+            className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-ink/75 transition-colors duration-200 hover:bg-brand-50 hover:text-brand-700"
           >
             🏠 View website
           </Link>
           <form action={logoutAction}>
             <button
               type="submit"
-              className="mt-1 flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50"
+              className="mt-1 flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-600 transition-colors duration-200 hover:bg-red-50"
             >
               🚪 Logout
             </button>

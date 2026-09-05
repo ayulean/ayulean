@@ -32,7 +32,7 @@ const STEPS = [
 const FAQS = [
   {
     q: "Is this product safe?",
-    a: "Yes. AyuLean Ayurvedic Supplement is made from classical Ayurvedic herbs, manufactured in a GMP-certified facility, and every batch is third-party lab tested. That said, if you are pregnant, breastfeeding or on any ongoing medication, please consult your doctor before use.",
+    a: "Yes. Angad Ayurveda's Ayurvedic Supplement is made from classical Ayurvedic herbs, manufactured in a GMP-certified facility, and every batch is third-party lab tested. That said, if you are pregnant, breastfeeding or on any ongoing medication, please consult your doctor before use.",
   },
   {
     q: "How soon will I see results?",
@@ -62,49 +62,78 @@ export default async function HomePage() {
     <>
       {/* HERO */}
       <section className="relative overflow-hidden bg-gradient-to-b from-brand-50 via-cream to-white">
-        <div className="container-x grid items-center gap-12 py-14 lg:grid-cols-2 lg:py-24">
+        {/* Two slow-drifting washes of colour behind the hero. */}
+        <div
+          aria-hidden="true"
+          className="anim-glow pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-brand-200/50 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="anim-glow pointer-events-none absolute -right-32 top-40 h-96 w-96 rounded-full bg-gold-400/20 blur-3xl"
+          style={{ animationDelay: "-3.5s" }}
+        />
+
+        <div className="container-x relative grid items-center gap-12 py-14 lg:grid-cols-2 lg:py-24">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-brand-100 px-4 py-1.5 text-sm font-semibold text-brand-700">
+            <span
+              style={{ "--i": 0 } as React.CSSProperties}
+              className="anim-fade-up inline-flex items-center gap-2 rounded-full bg-brand-100 px-4 py-1.5 text-sm font-semibold text-brand-700"
+            >
               🌿 Ayurveda × Modern Science
             </span>
-            <h1 className="mt-5 font-display text-4xl font-bold leading-tight text-brand-900 sm:text-5xl lg:text-6xl">
+            <h1
+              style={{ "--i": 1 } as React.CSSProperties}
+              className="anim-fade-up mt-5 font-display text-4xl font-bold leading-tight text-brand-900 sm:text-5xl lg:text-6xl"
+            >
               Healthy on the inside,
               <br />
               <span className="text-brand-600">confident on the outside</span>
             </h1>
-            <p className="mt-5 max-w-lg text-lg leading-relaxed text-ink/70">
+            <p
+              style={{ "--i": 2 } as React.CSSProperties}
+              className="anim-fade-up mt-5 max-w-lg text-lg leading-relaxed text-ink/70"
+            >
               The {SITE.name} Ayurvedic Supplement naturally supports your metabolism, digestion and daily energy —
               100% herbal, no side effects, no added sugar.
             </p>
 
             {hero && (
-              <div className="mt-7 flex flex-wrap items-center gap-4">
+              <div
+                style={{ "--i": 3 } as React.CSSProperties}
+                className="anim-fade-up mt-7 flex flex-wrap items-center gap-4"
+              >
                 <Link
                   href={`/product/${hero.slug}`}
-                  className="rounded-full bg-brand-600 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700"
+                  className="rounded-full bg-brand-600 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-brand-600/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-600/30"
                 >
                   Order now — {money(hero.price)}
                 </Link>
                 <Link
                   href="/products"
-                  className="rounded-full border-2 border-brand-300 px-8 py-4 text-base font-semibold text-brand-700 transition hover:bg-brand-50"
+                  className="rounded-full border-2 border-brand-300 px-8 py-4 text-base font-semibold text-brand-700 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-500 hover:bg-brand-50"
                 >
                   View product
                 </Link>
               </div>
             )}
 
-            <div className="mt-8 flex items-center gap-3">
-              <Stars value={avg} size={18} />
-              <p className="text-sm text-ink/60">
-                <strong className="text-ink/80">{Math.round(avg * 10) / 10}/5</strong> · 10,000+ happy customers
-              </p>
-            </div>
+            {reviews.length > 0 && (
+              <div
+                style={{ "--i": 4 } as React.CSSProperties}
+                className="anim-fade-up mt-8 flex items-center gap-3"
+              >
+                <Stars value={avg} size={18} />
+                <p className="text-sm text-ink/60">
+                  <strong className="text-ink/80">{Math.round(avg * 10) / 10}/5</strong> from{" "}
+                  {reviews.length} verified {reviews.length === 1 ? "review" : "reviews"}
+                </p>
+              </div>
+            )}
           </div>
 
-          <div className="relative">
-            <div className="absolute -inset-6 rounded-[3rem] bg-brand-200/40 blur-3xl" aria-hidden="true" />
-            <div className="relative overflow-hidden rounded-[2rem] border border-brand-100 bg-white shadow-2xl">
+          <div className="anim-scale-in relative" style={{ "--i": 2 } as React.CSSProperties}>
+            <div className="anim-glow absolute -inset-6 rounded-[3rem] bg-brand-200/40 blur-3xl" aria-hidden="true" />
+            <div className="anim-float relative overflow-hidden rounded-[2rem] border border-brand-100 bg-white shadow-2xl">
               <Image
                 src={hero?.image ?? "/img/product-1.svg"}
                 alt={hero?.name ?? "Ayurvedic Supplement"}
@@ -115,7 +144,7 @@ export default async function HomePage() {
               />
             </div>
             {hero && hero.discountPercent > 0 && (
-              <div className="absolute -right-2 -top-2 rotate-6 rounded-2xl bg-gold-500 px-5 py-3 text-center text-white shadow-xl">
+              <div className="anim-scale-in absolute -right-2 -top-2 rotate-6 rounded-2xl bg-gold-500 px-5 py-3 text-center text-white shadow-xl" style={{ "--i": 5 } as React.CSSProperties}>
                 <p className="text-2xl font-bold leading-none">{hero.discountPercent}%</p>
                 <p className="text-xs font-semibold tracking-wide">OFF</p>
               </div>
@@ -127,9 +156,18 @@ export default async function HomePage() {
       {/* TRUST BAR */}
       <section className="border-y border-brand-100 bg-white">
         <div className="container-x grid gap-6 py-8 sm:grid-cols-2 lg:grid-cols-4">
-          {TRUST.map((t) => (
-            <div key={t.title} className="flex items-start gap-3">
-              <span className="text-2xl" aria-hidden="true">{t.icon}</span>
+          {TRUST.map((t, i) => (
+            <div
+              key={t.title}
+              style={{ "--i": i } as React.CSSProperties}
+              className="reveal group flex items-start gap-3"
+            >
+              <span
+                className="text-2xl transition-transform duration-300 group-hover:scale-110"
+                aria-hidden="true"
+              >
+                {t.icon}
+              </span>
               <div>
                 <p className="font-semibold text-brand-800">{t.title}</p>
                 <p className="text-sm text-ink/60">{t.text}</p>
@@ -141,7 +179,7 @@ export default async function HomePage() {
 
       {/* PRODUCTS */}
       <section className="container-x py-16 lg:py-20">
-        <div className="text-center">
+        <div className="reveal text-center">
           <h2 className="font-display text-3xl font-bold text-brand-900 sm:text-4xl">Our Product</h2>
           <p className="mx-auto mt-3 max-w-xl text-ink/60">
             One formula, crafted with complete care — so you do not need anything else.
@@ -149,8 +187,8 @@ export default async function HomePage() {
         </div>
 
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
+          {products.map((p, i) => (
+            <ProductCard key={p.id} product={p} index={i} />
           ))}
         </div>
       </section>
@@ -158,13 +196,22 @@ export default async function HomePage() {
       {/* BENEFITS */}
       <section className="bg-cream py-16 lg:py-20">
         <div className="container-x">
-          <h2 className="text-center font-display text-3xl font-bold text-brand-900 sm:text-4xl">
+          <h2 className="reveal text-center font-display text-3xl font-bold text-brand-900 sm:text-4xl">
             Why {SITE.name}?
           </h2>
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {BENEFITS.map((b) => (
-              <div key={b.title} className="rounded-2xl border border-brand-100 bg-white p-6">
-                <span className="text-3xl" aria-hidden="true">{b.icon}</span>
+            {BENEFITS.map((b, i) => (
+              <div
+                key={b.title}
+                style={{ "--i": i } as React.CSSProperties}
+                className="reveal lift group rounded-2xl border border-brand-100 bg-white p-6 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-900/5"
+              >
+                <span
+                  className="inline-block text-3xl transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-110"
+                  aria-hidden="true"
+                >
+                  {b.icon}
+                </span>
                 <h3 className="mt-4 font-display text-lg font-bold text-brand-800">{b.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink/65">{b.text}</p>
               </div>
@@ -175,11 +222,17 @@ export default async function HomePage() {
 
       {/* HOW IT WORKS */}
       <section className="container-x py-16 lg:py-20">
-        <h2 className="text-center font-display text-3xl font-bold text-brand-900 sm:text-4xl">How it works</h2>
+        <h2 className="reveal text-center font-display text-3xl font-bold text-brand-900 sm:text-4xl">How it works</h2>
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((s) => (
-            <div key={s.n} className="relative rounded-2xl border border-brand-100 p-6">
-              <span className="font-display text-4xl font-bold text-brand-200">{s.n}</span>
+          {STEPS.map((s, i) => (
+            <div
+              key={s.n}
+              style={{ "--i": i } as React.CSSProperties}
+              className="reveal lift group relative rounded-2xl border border-brand-100 p-6 hover:border-brand-300 hover:bg-brand-50/40"
+            >
+              <span className="font-display text-4xl font-bold text-brand-200 transition-colors duration-300 group-hover:text-brand-400">
+                {s.n}
+              </span>
               <h3 className="mt-2 font-semibold text-brand-800">{s.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-ink/65">{s.text}</p>
             </div>
@@ -191,10 +244,14 @@ export default async function HomePage() {
       {reviews.length > 0 && (
         <section className="bg-brand-800 py-16 text-white lg:py-20">
           <div className="container-x">
-            <h2 className="text-center font-display text-3xl font-bold sm:text-4xl">What our customers say</h2>
+            <h2 className="reveal text-center font-display text-3xl font-bold sm:text-4xl">What our customers say</h2>
             <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {reviews.map((r) => (
-                <figure key={r.id} className="rounded-2xl bg-white/10 p-6 backdrop-blur">
+              {reviews.map((r, i) => (
+                <figure
+                  key={r.id}
+                  style={{ "--i": i } as React.CSSProperties}
+                  className="reveal lift rounded-2xl bg-white/10 p-6 backdrop-blur hover:bg-white/15"
+                >
                   <Stars value={r.rating} size={15} />
                   {r.title && <figcaption className="mt-3 font-semibold">{r.title}</figcaption>}
                   <blockquote className="mt-2 text-sm leading-relaxed text-white/80">“{r.body}”</blockquote>
@@ -216,7 +273,7 @@ export default async function HomePage() {
 
       {/* GUARANTEE */}
       <section className="container-x py-16 lg:py-20">
-        <div className="grid items-center gap-10 rounded-3xl border border-brand-100 bg-gradient-to-br from-brand-50 to-cream p-8 lg:grid-cols-2 lg:p-12">
+        <div className="reveal grid items-center gap-10 rounded-3xl border border-brand-100 bg-gradient-to-br from-brand-50 to-cream p-8 lg:grid-cols-2 lg:p-12">
           <div>
             <span className="inline-block rounded-full bg-gold-500 px-4 py-1.5 text-sm font-bold text-white">
               {SITE.replacementDays}-DAY REPLACEMENT
@@ -239,8 +296,12 @@ export default async function HomePage() {
               "The product must be in its original sealed packaging",
               "We arrange the pickup — you do not have to do anything",
               "Replacement delivered within 5–7 working days",
-            ].map((li) => (
-              <li key={li} className="flex items-start gap-3 rounded-xl bg-white p-4">
+            ].map((li, i) => (
+              <li
+                key={li}
+                style={{ "--i": i } as React.CSSProperties}
+                className="reveal flex items-start gap-3 rounded-xl bg-white p-4 transition-shadow duration-300 hover:shadow-md"
+              >
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">
                   ✓
                 </span>
@@ -253,19 +314,21 @@ export default async function HomePage() {
 
       {/* FAQ */}
       <section className="container-x pb-20">
-        <h2 className="text-center font-display text-3xl font-bold text-brand-900 sm:text-4xl">
+        <h2 className="reveal text-center font-display text-3xl font-bold text-brand-900 sm:text-4xl">
           Frequently asked questions
         </h2>
-        <div className="mx-auto mt-10 max-w-3xl divide-y divide-brand-100 rounded-2xl border border-brand-100">
+        <div className="reveal mx-auto mt-10 max-w-3xl divide-y divide-brand-100 rounded-2xl border border-brand-100">
           {FAQS.map((f) => (
-            <details key={f.q} className="group p-5">
-              <summary className="cursor-pointer list-none font-semibold text-brand-800 marker:hidden">
+            <details key={f.q} className="group p-5 transition-colors duration-300 open:bg-brand-50/40">
+              <summary className="cursor-pointer list-none font-semibold text-brand-800 transition-colors hover:text-brand-600 marker:hidden">
                 <span className="flex items-center justify-between gap-4">
                   {f.q}
-                  <span className="text-xl text-brand-400 transition group-open:rotate-45">+</span>
+                  <span className="text-xl text-brand-400 transition-transform duration-300 ease-out group-open:rotate-45">
+                    +
+                  </span>
                 </span>
               </summary>
-              <p className="mt-3 text-sm leading-relaxed text-ink/70">{f.a}</p>
+              <p className="details-body mt-3 text-sm leading-relaxed text-ink/70">{f.a}</p>
             </details>
           ))}
         </div>
@@ -280,7 +343,7 @@ export default async function HomePage() {
           </div>
           <Link
             href={`/product/${hero?.slug ?? "ayurvedic-supplement"}`}
-            className="shrink-0 rounded-full bg-white px-8 py-4 font-semibold text-brand-700 hover:bg-brand-50"
+            className="shrink-0 rounded-full bg-white px-8 py-4 font-semibold text-brand-700 shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-50 hover:shadow-xl"
           >
             Order Now
           </Link>

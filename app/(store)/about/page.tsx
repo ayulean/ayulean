@@ -40,8 +40,8 @@ export default function AboutPage() {
 
         <div className="mt-10 grid gap-5 sm:grid-cols-3">
           {[
-            { n: "10,000+", l: "Happy customers" },
-            { n: "4.6/5", l: "Average rating" },
+            { n: "GMP", l: "Certified manufacturing" },
+            { n: "3rd-party", l: "Lab tested batches" },
             { n: `${SITE.replacementDays} days`, l: "Easy replacement" },
           ].map((s) => (
             <div key={s.l} className="rounded-2xl border border-brand-100 bg-cream p-6 text-center">

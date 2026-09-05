@@ -1,5 +1,5 @@
 -- ============================================================================
---  AyuLean — migration 002
+--  Angad Ayurveda — migration 002
 --  Adds: safe stock release on cancellation, courier tracking, per-customer
 --        coupon limits, replacement requests and API rate limiting.
 --  Run once in Supabase → SQL Editor. Safe to run more than once.

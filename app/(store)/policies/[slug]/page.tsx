@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { SITE } from "@/lib/site";
+import { complianceRows, SITE } from "@/lib/site";
 
 type Policy = { title: string; intro: string; sections: Array<{ h: string; p: string[] }> };
 
@@ -42,6 +42,52 @@ const POLICIES: Record<string, Policy> = {
           "If a replacement is out of stock, prepaid orders are fully refunded to the original payment method within 5–7 working days.",
           "Cash on Delivery orders are refunded by bank transfer or UPI — our team confirms the details with you.",
           "Any shipping charge you paid is also refunded in case of a damaged or incorrect product.",
+        ],
+      },
+    ],
+  },
+  refund: {
+    title: "Cancellation & Refund Policy",
+    intro: `You can cancel an order any time before it is shipped, and every refund we owe you is paid back to the same account you paid from. This page is the complete cancellation and refund policy for ${SITE.name}.`,
+    sections: [
+      {
+        h: "Cancelling an order",
+        p: [
+          "An order can be cancelled by you, free of charge, at any point until it is handed to the courier — open Track Order or your account's Orders page and use Cancel Order.",
+          "Once the order has been shipped it can no longer be cancelled online. Call or WhatsApp us at " + SITE.phone + " and we will try to recall the parcel; if the recall succeeds the order is refunded in full.",
+          "We may ourselves cancel an order if the address is incomplete, the pincode is not serviceable, the item goes out of stock, or the order is flagged as fraudulent. Prepaid orders cancelled by us are always refunded in full.",
+        ],
+      },
+      {
+        h: "Refund timelines",
+        p: [
+          "Prepaid orders: the refund is initiated within 24-48 working hours of the cancellation or of an approved replacement claim being closed as a refund.",
+          "Once initiated, the money reaches your bank, card or UPI account within 5-7 working days. The exact time is set by your bank, not by us.",
+          "Cash on Delivery orders: nothing has been charged, so a cancellation before delivery needs no refund. Where a refund is due on a delivered COD order, we pay it by UPI or bank transfer within 5-7 working days of collecting your details.",
+        ],
+      },
+      {
+        h: "How the money comes back",
+        p: [
+          "Refunds on prepaid orders always go back to the original payment method - the same card, UPI ID, wallet or bank account. We cannot redirect a refund to a different account.",
+          "The refund reference number is sent to you on WhatsApp and email as soon as the refund is initiated.",
+          "We never ask for your card number, CVV, PIN, OTP or bank password to process a refund. Anyone asking for these in our name is not us.",
+        ],
+      },
+      {
+        h: "When a refund is not given",
+        p: [
+          "The product has been opened or partly used and there is no damage or quality issue - a supplement cannot be resold once its seal is broken, so it can only be replaced under the conditions on the Replacement page, not refunded.",
+          "The request is raised more than " + String(SITE.replacementDays) + " days after delivery.",
+          "The parcel was refused at the door repeatedly, or the delivery failed because of a wrong address or an unreachable phone number.",
+          "Products bought as part of a combo cannot be refunded individually - the combo is refunded as a whole.",
+        ],
+      },
+      {
+        h: "Raising a refund request",
+        p: [
+          "Email " + SITE.email + " or call/WhatsApp " + SITE.phone + " with your order number and the reason.",
+          "We reply to every request within 24 working hours and tell you clearly whether it is approved, and if not, why.",
         ],
       },
     ],
@@ -156,6 +202,8 @@ export default async function PolicyPage({ params }: PageProps<"/policies/[slug]
   const policy = POLICIES[slug];
   if (!policy) notFound();
 
+  const rows = complianceRows();
+
   return (
     <div className="container-x py-14">
       <div className="mx-auto max-w-3xl">
@@ -184,6 +232,15 @@ export default async function PolicyPage({ params }: PageProps<"/policies/[slug]
             📞 <a href={`tel:${SITE.phone.replace(/\s/g, "")}`} className="text-brand-700 hover:underline">{SITE.phone}</a> ·{" "}
             ✉️ <a href={`mailto:${SITE.email}`} className="text-brand-700 hover:underline">{SITE.email}</a>
           </p>
+
+          <dl className="mt-5 grid gap-x-6 gap-y-2 border-t border-brand-100 pt-5 text-xs sm:grid-cols-[max-content_1fr]">
+            {rows.map((r) => (
+              <div key={r.label} className="contents">
+                <dt className="font-semibold text-brand-800">{r.label}</dt>
+                <dd className="text-ink/65">{r.value}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </div>
     </div>

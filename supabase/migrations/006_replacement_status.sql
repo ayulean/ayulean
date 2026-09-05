@@ -1,5 +1,5 @@
 -- ============================================================================
---  AyuLean — migration 006
+--  Angad Ayurveda — migration 006
 --  Lets the customer see what happened to their replacement request.
 --  Run once in Supabase → SQL Editor. Safe to run more than once.
 -- ============================================================================

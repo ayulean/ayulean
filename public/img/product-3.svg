@@ -13,10 +13,11 @@
     <rect x="-135" y="-190" width="270" height="360" rx="34" fill="url(#jar3)"/>
     <rect x="-105" y="-232" width="210" height="56" rx="18" fill="#1c3b1b"/>
     <rect x="-108" y="-90" width="216" height="176" rx="14" fill="#fdfaf3"/>
-    <text x="0" y="-30" text-anchor="middle" font-family="Georgia, serif" font-size="40" font-weight="700" fill="#275824">AyuLean</text>
-    <text x="0" y="6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="19" letter-spacing="2" fill="#3f8c39">AYURVEDIC</text>
-    <text x="0" y="32" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="19" letter-spacing="2" fill="#3f8c39">SUPPLEMENT</text>
-    <text x="0" y="68" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" letter-spacing="3" fill="#a87c22">100% HERBAL</text>
+    <text x="0" y="-46" text-anchor="middle" font-family="Georgia, serif" font-size="36" font-weight="700" fill="#275824">ANGAD</text>
+    <text x="0" y="-22" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" letter-spacing="3" fill="#b5541f">AYURVEDA</text>
+    <text x="0" y="8" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="19" letter-spacing="2" fill="#3f8c39">AYURVEDIC</text>
+    <text x="0" y="34" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="19" letter-spacing="2" fill="#3f8c39">SUPPLEMENT</text>
+    <text x="0" y="70" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" letter-spacing="3" fill="#a87c22">100% HERBAL</text>
     <path d="M-40 120 q40 -34 80 0 q-40 20 -80 0z" fill="#64ac5c"/>
   </g>
   <g transform="translate(150 640)" opacity="0.5">

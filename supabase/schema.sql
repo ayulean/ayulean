@@ -1,5 +1,5 @@
 -- ============================================================================
---  AyuLean — Supabase schema, security rules and seed data
+--  Angad Ayurveda — Supabase schema, security rules and seed data
 --  Run this once in Supabase → SQL Editor → New query → Run.
 --  It is safe to run more than once (everything is IF NOT EXISTS / idempotent).
 -- ============================================================================
@@ -151,7 +151,7 @@ values (
   'ayurvedic-supplement',
   'Ayurvedic Supplement',
   '100% herbal formula for metabolism, digestion & daily energy',
-  E'AyuLean Ayurvedic Supplement is a classical Ayurvedic formulation built for today''s busy lifestyle. It brings together a balanced blend of time-tested herbs — Garcinia, Green Tea, Triphala, Guggul and Ginger — that support your metabolism, improve digestion and keep your energy steady through the day.\n\nEvery batch is manufactured in a GMP-certified facility and tested by a third-party lab. No added sugar, no preservatives, 100% vegetarian.',
+  E'Angad Ayurveda''s Ayurvedic Supplement is a classical Ayurvedic formulation built for today''s busy lifestyle. It brings together a balanced blend of time-tested herbs — Garcinia, Green Tea, Triphala, Guggul and Ginger — that support your metabolism, improve digestion and keep your energy steady through the day.\n\nEvery batch is manufactured in a GMP-certified facility and tested by a third-party lab. No added sugar, no preservatives, 100% vegetarian.',
   '["Naturally supports a healthy metabolism","Improves digestion and gut health","Helps reduce bloating and heaviness","Sustained energy all day, with no crash","100% vegetarian, no added sugar, no preservatives","GMP certified facility, third-party lab tested"]'::jsonb,
   'Garcinia Cambogia (500mg), Green Tea Extract (200mg), Triphala (150mg), Guggul (100mg), Ginger Extract (50mg), Black Pepper Extract (5mg)',
   'Take 1 capsule in the morning and 1 capsule in the evening, 30 minutes before meals, with lukewarm water. For best results, use consistently for 90 days.',

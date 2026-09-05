@@ -1,9 +1,9 @@
 import crypto from "node:crypto";
 import { cookies } from "next/headers";
 
-const COOKIE = "ayulean_admin";
-const SECRET = process.env.ADMIN_SECRET || "ayulean-dev-secret-change-me";
-export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "ayulean@123";
+const COOKIE = "angad_admin";
+const SECRET = process.env.ADMIN_SECRET || "angad-dev-secret-change-me";
+export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "angad@123";
 
 function sign(value: string) {
   return crypto.createHmac("sha256", SECRET).update(value).digest("hex");

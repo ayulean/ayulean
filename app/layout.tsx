@@ -16,8 +16,7 @@ export const metadata: Metadata = {
     template: `%s | ${SITE.name}`,
   },
   description:
-    "AyuLean Ayurvedic Supplement — 100% herbal formula for metabolism, digestion and daily energy. Cash on Delivery, online payment aur 7-day easy replacement.",
-  icons: { icon: SITE.logo },
+    "Angad Ayurveda — 100% herbal formula for metabolism, digestion and daily energy. Cash on Delivery, online payment aur 7-day easy replacement.",
   openGraph: {
     title: `${SITE.name} — Ayurvedic Supplement`,
     description: "100% herbal formula for metabolism, digestion and daily energy.",
@@ -31,7 +30,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`${sans.variable} ${display.variable} h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col bg-white">
         <CartProvider>{children}</CartProvider>
         <Analytics />

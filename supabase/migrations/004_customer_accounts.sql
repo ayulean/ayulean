@@ -1,5 +1,5 @@
 -- ============================================================================
---  AyuLean — migration 004
+--  Angad Ayurveda — migration 004
 --  Customer accounts: links orders to a signed-in customer and stores the
 --  profile details we reuse at checkout.
 --  Run once in Supabase → SQL Editor. Safe to run more than once.
