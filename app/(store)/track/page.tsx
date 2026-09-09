@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import CancelOrderButton from "@/components/CancelOrderButton";
 import { canCancel } from "@/lib/orders";
 import { money } from "@/lib/pricing";
@@ -7,13 +8,40 @@ import ReplacementStatusCard from "@/components/ReplacementStatusCard";
 import { getOrderByNo, getReplacementForOrder } from "@/lib/queries";
 import { SITE } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = { title: "Track Order" };
 
 const STEPS = ["placed", "confirmed", "shipped", "delivered"];
 
-export default async function TrackPage({ searchParams }: PageProps<"/track">) {
+/**
+ * The heading is prerendered and shown at once; the lookup form and whatever it
+ * found are the only parts that wait on the query string and the database.
+ */
+export default function TrackPage({ searchParams }: PageProps<"/track">) {
+  return (
+    <div className="container-x py-14">
+      <div className="mx-auto max-w-2xl">
+        <h1 className="font-display text-3xl font-bold text-brand-900">Track your order</h1>
+        <p className="mt-2 text-ink/60">Enter your order number and the mobile number you ordered with.</p>
+
+        <Suspense fallback={<TrackFormSkeleton />}>
+          <Lookup searchParams={searchParams} />
+        </Suspense>
+      </div>
+    </div>
+  );
+}
+
+function TrackFormSkeleton() {
+  return (
+    <div className="mt-6 grid gap-4 sm:grid-cols-[1fr_1fr_auto]">
+      <div className="skeleton h-12 rounded-lg" />
+      <div className="skeleton h-12 rounded-lg" />
+      <div className="skeleton h-12 w-28 rounded-lg" />
+    </div>
+  );
+}
+
+async function Lookup({ searchParams }: Pick<PageProps<"/track">, "searchParams">) {
   const sp = await searchParams;
   const orderNo = typeof sp.orderNo === "string" ? sp.orderNo.trim() : "";
   const phone = typeof sp.phone === "string" ? sp.phone.replace(/\s/g, "") : "";
@@ -25,11 +53,7 @@ export default async function TrackPage({ searchParams }: PageProps<"/track">) {
   const replacement = matched ? await getReplacementForOrder(matched.order_no) : null;
 
   return (
-    <div className="container-x py-14">
-      <div className="mx-auto max-w-2xl">
-        <h1 className="font-display text-3xl font-bold text-brand-900">Track your order</h1>
-        <p className="mt-2 text-ink/60">Enter your order number and the mobile number you ordered with.</p>
-
+    <>
         <form method="get" className="mt-6 grid gap-4 sm:grid-cols-[1fr_1fr_auto]">
           <input
             name="orderNo"
@@ -157,7 +181,6 @@ export default async function TrackPage({ searchParams }: PageProps<"/track">) {
             )}
           </div>
         )}
-      </div>
-    </div>
+    </>
   );
 }

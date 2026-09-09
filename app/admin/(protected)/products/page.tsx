@@ -5,8 +5,6 @@ import { deleteProductAction } from "@/lib/actions";
 import { money } from "@/lib/pricing";
 import { getProducts } from "@/lib/queries";
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = { title: "Products", robots: { index: false } };
 
 export default async function AdminProductsPage({ searchParams }: PageProps<"/admin/products">) {

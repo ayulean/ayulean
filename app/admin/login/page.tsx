@@ -5,7 +5,12 @@ import LoginForm from "@/components/admin/LoginForm";
 import { isAdmin } from "@/lib/auth";
 import { SITE } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
+/**
+ * Admin sits behind a login and is only ever used by us, so it stays a blocking
+ * server render rather than a prerendered shell — nothing here benefits from
+ * being instant, and everything on the page is request-bound anyway.
+ */
+export const instant = false;
 
 export const metadata: Metadata = { title: "Admin Login", robots: { index: false } };
 

@@ -4,8 +4,6 @@ import { getReplacementRequests } from "@/lib/queries";
 import { ALL_REPLACEMENT_STATUSES, REPLACEMENT_STATUS, isFinished, needsAction } from "@/lib/replacement";
 import type { ReplacementRequest } from "@/lib/types";
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = { title: "Replacements", robots: { index: false } };
 
 export default async function AdminReplacementsPage() {

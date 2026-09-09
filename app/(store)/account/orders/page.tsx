@@ -11,7 +11,12 @@ import { money } from "@/lib/pricing";
 import { SITE } from "@/lib/site";
 import type { Order } from "@/lib/types";
 
-export const dynamic = "force-dynamic";
+/**
+ * A personal page: it exists only for the signed-in customer, or for one
+ * specific order. There is no shared shell worth prerendering, so it blocks on
+ * the server rather than streaming an empty frame first.
+ */
+export const instant = false;
 
 export const metadata: Metadata = { title: "My orders", robots: { index: false } };
 

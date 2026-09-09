@@ -1,9 +1,9 @@
+import { revalidateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { getProductById } from "@/lib/queries";
 import { shouldAutoApprove } from "@/lib/reviews";
 import { allowRequest, clientIp } from "@/lib/ratelimit";
 import { db } from "@/lib/supabase";
-
-export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   // 3 reviews per IP per hour.
@@ -52,6 +52,9 @@ export async function POST(req: Request) {
     console.error("Review insert failed", error);
     return Response.json({ error: "Your review could not be submitted." }, { status: 500 });
   }
+
+  // Auto-approved reviews go live at once, so the cached list has to go.
+  if (autoApprove) revalidateTag(CACHE_TAGS.reviews, "max");
 
   return Response.json({
     ok: true,

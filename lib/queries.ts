@@ -1,4 +1,6 @@
+import { cacheLife, cacheTag } from "next/cache";
 import { bundleAvailability, bundleSeparateValue, parseBundleItems } from "./bundle";
+import { CACHE_TAGS } from "./cache-tags";
 import { db, unwrap } from "./supabase";
 import type { Coupon, Order, Product, ProductRow, ReplacementRequest, ResolvedComponent, Review } from "./types";
 
@@ -8,27 +10,30 @@ type StatsRow = { product_id: number; review_count: number; avg_rating: number |
 async function withStats(rows: ProductRow[]): Promise<Product[]> {
   if (rows.length === 0) return [];
 
-  const stats = unwrap<StatsRow[]>(
-    await db()
-      .from("product_stats")
-      .select("product_id, review_count, avg_rating")
-      .in("product_id", rows.map((r) => r.id)),
-    "Failed to load product stats"
-  );
-  const statsById = new Map(stats.map((s) => [s.product_id, s]));
-
-  // A combo needs its components' live price and stock, so fetch them in one go.
+  // A combo needs its components' live price and stock. Neither this nor the
+  // rating stats depend on the other, so both round trips go out together.
   const bundleItemsByRow = new Map(rows.map((r) => [r.id, parseBundleItems(r.bundle_items)]));
   const componentIds = [...new Set([...bundleItemsByRow.values()].flat().map((c) => c.productId))];
 
-  let componentsById = new Map<number, Pick<ProductRow, "id" | "name" | "slug" | "image" | "price" | "stock">>();
-  if (componentIds.length > 0) {
-    const comps = unwrap<Array<Pick<ProductRow, "id" | "name" | "slug" | "image" | "price" | "stock">>>(
-      await db().from("products").select("id, name, slug, image, price, stock").in("id", componentIds),
-      "Failed to load combo components"
-    );
-    componentsById = new Map(comps.map((c) => [c.id, c]));
-  }
+  type Component = Pick<ProductRow, "id" | "name" | "slug" | "image" | "price" | "stock">;
+
+  const [stats, comps] = await Promise.all([
+    db()
+      .from("product_stats")
+      .select("product_id, review_count, avg_rating")
+      .in("product_id", rows.map((r) => r.id))
+      .then((res) => unwrap<StatsRow[]>(res, "Failed to load product stats")),
+    componentIds.length === 0
+      ? Promise.resolve([] as Component[])
+      : db()
+          .from("products")
+          .select("id, name, slug, image, price, stock")
+          .in("id", componentIds)
+          .then((res) => unwrap<Component[]>(res, "Failed to load combo components")),
+  ]);
+
+  const statsById = new Map(stats.map((s) => [s.product_id, s]));
+  const componentsById = new Map(comps.map((c) => [c.id, c]));
 
   return rows.map((row) => {
     const s = statsById.get(row.id);
@@ -61,6 +66,10 @@ async function withStats(rows: ProductRow[]): Promise<Product[]> {
 /* ---------------- products ---------------- */
 
 export async function getProducts(opts: { includeInactive?: boolean } = {}): Promise<Product[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAGS.products, CACHE_TAGS.reviews);
+
   let query = db().from("products").select("*").order("id", { ascending: false });
   if (!opts.includeInactive) query = query.eq("active", true);
 
@@ -68,6 +77,10 @@ export async function getProducts(opts: { includeInactive?: boolean } = {}): Pro
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAGS.products, CACHE_TAGS.reviews);
+
   const rows = unwrap<ProductRow[]>(
     await db().from("products").select("*").eq("slug", slug).limit(1),
     "Failed to load product"
@@ -76,6 +89,10 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 }
 
 export async function getProductById(id: number): Promise<Product | null> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAGS.products, CACHE_TAGS.reviews);
+
   if (!Number.isFinite(id)) return null;
   const rows = unwrap<ProductRow[]>(
     await db().from("products").select("*").eq("id", id).limit(1),
@@ -87,6 +104,10 @@ export async function getProductById(id: number): Promise<Product | null> {
 /* ---------------- reviews ---------------- */
 
 export async function getReviews(productId: number, approvedOnly = true): Promise<Review[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAGS.reviews);
+
   let query = db().from("reviews").select("*").eq("product_id", productId).order("id", { ascending: false });
   if (approvedOnly) query = query.eq("approved", true);
 
@@ -102,6 +123,10 @@ export async function getAllReviews(): Promise<Array<Review & { product_name: st
 }
 
 export async function getApprovedReviewsAcrossStore(limit = 8): Promise<Array<Review & { product_slug: string }>> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(CACHE_TAGS.reviews);
+
   const rows = unwrap<Array<Review & { products: { slug: string } | null }>>(
     await db()
       .from("reviews")

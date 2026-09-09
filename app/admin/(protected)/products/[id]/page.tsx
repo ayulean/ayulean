@@ -3,8 +3,6 @@ import { notFound } from "next/navigation";
 import ProductForm from "@/components/admin/ProductForm";
 import { getProductById, getProducts } from "@/lib/queries";
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = { title: "Edit product", robots: { index: false } };
 
 export default async function EditProductPage({ params }: PageProps<"/admin/products/[id]">) {

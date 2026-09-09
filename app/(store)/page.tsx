@@ -6,8 +6,6 @@ import { money } from "@/lib/pricing";
 import { getApprovedReviewsAcrossStore, getProducts } from "@/lib/queries";
 import { SITE } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
-
 const TRUST = [
   { icon: "🌿", title: "100% Ayurvedic", text: "Classical herbs, no chemicals" },
   { icon: "🔄", title: `${SITE.replacementDays}-Day Replacement`, text: "Damaged or wrong item? Replaced right away" },
@@ -53,9 +51,8 @@ const FAQS = [
 ];
 
 export default async function HomePage() {
-  const products = await getProducts();
+  const [products, reviews] = await Promise.all([getProducts(), getApprovedReviewsAcrossStore(6)]);
   const hero = products[products.length - 1] ?? products[0];
-  const reviews = await getApprovedReviewsAcrossStore(6);
   const avg = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 5;
 
   return (

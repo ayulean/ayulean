@@ -3,8 +3,6 @@ import Stars from "@/components/Stars";
 import { addReviewAsAdminAction, deleteReviewAction, setReviewApprovalAction } from "@/lib/actions";
 import { getAllReviews, getProducts } from "@/lib/queries";
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = { title: "Reviews", robots: { index: false } };
 
 const field =

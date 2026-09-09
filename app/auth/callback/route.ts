@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { accountsEnabled, customerClient } from "@/lib/auth-customer";
 
-export const dynamic = "force-dynamic";
-
 /**
  * Where Supabase sends the customer back to after Google sign-in, email
  * confirmation or a password reset link. Swaps the one-time code for a session

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { SITE } from "@/lib/site";
 import { useCart } from "./CartProvider";
 
@@ -17,16 +17,82 @@ const NAV = [
   { href: "/contact", label: "Contact" },
 ];
 
-export function Header({ userName }: { userName: string | null }) {
+const isActive = (pathname: string | null, href: string) =>
+  pathname === null ? false : href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+/**
+ * The navigation links, with the current page marked.
+ *
+ * `pathname` is passed in rather than read here so the same component can serve
+ * as its own Suspense fallback: on a route whose path is not known until the
+ * request (a product page), the header still prerenders — it just arrives
+ * without the active-page underline, which fills in a moment later.
+ */
+function DesktopNav({ pathname }: { pathname: string | null }) {
+  return (
+    <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-ink/80">
+      {NAV.map((n) => {
+        const active = isActive(pathname, n.href);
+        return (
+          <Link
+            key={n.href}
+            href={n.href}
+            aria-current={active ? "page" : undefined}
+            className={`group relative py-1 transition-colors hover:text-brand-600 ${active ? "text-brand-700" : ""}`}
+          >
+            {n.label}
+            {/* Underline grows from the centre on hover, and stays put on
+                the page you are already on. */}
+            <span
+              aria-hidden="true"
+              className={`absolute inset-x-0 -bottom-0.5 h-0.5 origin-center rounded-full bg-brand-500 transition-transform duration-300 ease-out group-hover:scale-x-100 ${
+                active ? "scale-x-100" : "scale-x-0"
+              }`}
+            />
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
+function LiveDesktopNav() {
+  return <DesktopNav pathname={usePathname()} />;
+}
+
+function MobileNavLinks({ pathname, onNavigate }: { pathname: string | null; onNavigate: () => void }) {
+  return (
+    <>
+      {NAV.map((n, i) => (
+        <Link
+          key={n.href}
+          href={n.href}
+          style={{ "--i": i } as React.CSSProperties}
+          onClick={onNavigate}
+          className={`anim-fade-up py-2.5 text-sm font-medium transition-colors hover:text-brand-600 ${
+            isActive(pathname, n.href) ? "text-brand-700" : "text-ink/80"
+          }`}
+        >
+          {n.label}
+        </Link>
+      ))}
+    </>
+  );
+}
+
+function LiveMobileNavLinks({ onNavigate }: { onNavigate: () => void }) {
+  return <MobileNavLinks pathname={usePathname()} onNavigate={onNavigate} />;
+}
+
+/**
+ * `accountBar` and `accountMenu` are server-rendered slots holding the account
+ * link. They arrive as already-rendered nodes so the header itself never waits
+ * on the session lookup behind them.
+ */
+export function Header({ accountBar, accountMenu }: { accountBar: ReactNode; accountMenu: ReactNode }) {
   const { count, ready } = useCart();
   const [scrolled, setScrolled] = useState(false);
-  const pathname = usePathname();
-
-  // The menu remembers which route it was opened on, so a navigation closes it
-  // without needing an effect to chase the pathname.
-  const [menu, setMenu] = useState({ open: false, path: pathname });
-  const open = menu.open && menu.path === pathname;
-  const setOpen = (next: boolean) => setMenu({ open: next, path: pathname });
+  const [open, setOpen] = useState(false);
 
   // The header condenses once the visitor leaves the top of the page, which
   // hands the content back some vertical room on small screens.
@@ -46,8 +112,6 @@ export function Header({ userName }: { userName: string | null }) {
     if (seen.current !== null && seen.current !== count) setBump((b) => b + 1);
     seen.current = count;
   }, [count, ready]);
-
-  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
     <>
@@ -92,37 +156,12 @@ export function Header({ userName }: { userName: string | null }) {
             </span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-ink/80">
-            {NAV.map((n) => (
-              <Link
-                key={n.href}
-                href={n.href}
-                aria-current={isActive(n.href) ? "page" : undefined}
-                className={`group relative py-1 transition-colors hover:text-brand-600 ${
-                  isActive(n.href) ? "text-brand-700" : ""
-                }`}
-              >
-                {n.label}
-                {/* Underline grows from the centre on hover, and stays put on
-                    the page you are already on. */}
-                <span
-                  aria-hidden="true"
-                  className={`absolute inset-x-0 -bottom-0.5 h-0.5 origin-center rounded-full bg-brand-500 transition-transform duration-300 ease-out group-hover:scale-x-100 ${
-                    isActive(n.href) ? "scale-x-100" : "scale-x-0"
-                  }`}
-                />
-              </Link>
-            ))}
-          </nav>
+          <Suspense fallback={<DesktopNav pathname={null} />}>
+            <LiveDesktopNav />
+          </Suspense>
 
           <div className="flex items-center gap-2">
-            <Link
-              href={userName ? "/account" : "/account/login"}
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-brand-200 px-3 py-2 text-sm font-medium text-brand-700 transition-colors hover:border-brand-300 hover:bg-brand-50"
-            >
-              <span aria-hidden="true">👤</span>
-              {userName ?? "Log in"}
-            </Link>
+            {accountBar}
             <Link
               href="/cart"
               className="relative inline-flex items-center gap-2 rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-brand-600/20 transition-all duration-200 hover:bg-brand-700 hover:shadow-md hover:shadow-brand-600/30"
@@ -176,27 +215,18 @@ export function Header({ userName }: { userName: string | null }) {
         {open && (
           <nav className="lg:hidden overflow-hidden border-t border-brand-100 bg-white">
             <div className="container-x flex flex-col py-2">
-              {NAV.map((n, i) => (
-                <Link
-                  key={n.href}
-                  href={n.href}
-                  style={{ "--i": i } as React.CSSProperties}
-                  onClick={() => setOpen(false)}
-                  className={`anim-fade-up py-2.5 text-sm font-medium transition-colors hover:text-brand-600 ${
-                    isActive(n.href) ? "text-brand-700" : "text-ink/80"
-                  }`}
-                >
-                  {n.label}
-                </Link>
-              ))}
-              <Link
-                href={userName ? "/account" : "/account/login"}
+              <Suspense fallback={<MobileNavLinks pathname={null} onNavigate={() => setOpen(false)} />}>
+                <LiveMobileNavLinks onNavigate={() => setOpen(false)} />
+              </Suspense>
+              {/* The link itself is server-rendered, so the close-on-tap handler
+                  and the stagger delay live on a wrapper that adds no box. */}
+              <span
+                className="contents"
                 style={{ "--i": NAV.length } as React.CSSProperties}
                 onClick={() => setOpen(false)}
-                className="anim-fade-up py-2.5 text-sm font-medium text-brand-700"
               >
-                👤 {userName ? "My account" : "Log in / Sign up"}
-              </Link>
+                {accountMenu}
+              </span>
               <a
                 href={`tel:${SITE.phone.replace(/\s/g, "")}`}
                 style={{ "--i": NAV.length + 1 } as React.CSSProperties}

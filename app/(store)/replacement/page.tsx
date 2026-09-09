@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import ReplacementForm from "@/components/ReplacementForm";
 import { SITE } from "@/lib/site";
-
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Request a Replacement",
   description: `Raise a ${SITE.replacementDays}-day replacement request for your ${SITE.name} order.`,
 };
 
-export default async function ReplacementPage({ searchParams }: PageProps<"/replacement">) {
-  const sp = await searchParams;
-  const orderNo = typeof sp.orderNo === "string" ? sp.orderNo : "";
-
+/**
+ * Only the prefilled order number comes from the query string, so the form is
+ * the one piece that waits for the request. Everything around it is prerendered.
+ */
+export default function ReplacementPage({ searchParams }: PageProps<"/replacement">) {
   return (
     <div className="container-x py-14">
       <div className="mx-auto max-w-2xl">
@@ -24,7 +24,9 @@ export default async function ReplacementPage({ searchParams }: PageProps<"/repl
         </p>
 
         <div className="mt-8">
-          <ReplacementForm defaultOrderNo={orderNo} />
+          <Suspense fallback={<ReplacementForm defaultOrderNo="" />}>
+            <PrefilledForm searchParams={searchParams} />
+          </Suspense>
         </div>
 
         <div className="mt-8 rounded-2xl border border-brand-100 p-6">
@@ -54,4 +56,9 @@ export default async function ReplacementPage({ searchParams }: PageProps<"/repl
       </div>
     </div>
   );
+}
+
+async function PrefilledForm({ searchParams }: Pick<PageProps<"/replacement">, "searchParams">) {
+  const sp = await searchParams;
+  return <ReplacementForm defaultOrderNo={typeof sp.orderNo === "string" ? sp.orderNo : ""} />;
 }

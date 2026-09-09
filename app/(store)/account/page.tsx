@@ -6,7 +6,12 @@ import PasswordForm from "@/components/account/PasswordForm";
 import { saveProfileAction, signOutAction } from "@/lib/account-actions";
 import { accountsEnabled, currentProfile, currentUser, fullName } from "@/lib/auth-customer";
 
-export const dynamic = "force-dynamic";
+/**
+ * A personal page: it exists only for the signed-in customer, or for one
+ * specific order. There is no shared shell worth prerendering, so it blocks on
+ * the server rather than streaming an empty frame first.
+ */
+export const instant = false;
 
 export const metadata: Metadata = { title: "My account", robots: { index: false } };
 

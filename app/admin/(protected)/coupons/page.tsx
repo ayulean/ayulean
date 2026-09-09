@@ -3,8 +3,6 @@ import { deleteCouponAction, saveCouponAction } from "@/lib/actions";
 import { money } from "@/lib/pricing";
 import { getCoupons } from "@/lib/queries";
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = { title: "Coupons", robots: { index: false } };
 
 const field =

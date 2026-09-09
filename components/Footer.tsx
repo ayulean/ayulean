@@ -1,8 +1,21 @@
+import { cacheLife } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
 import { COMPLIANCE, SITE } from "@/lib/site";
 
-export function Footer() {
+/**
+ * The copyright year. Reading the clock during a prerender is not allowed, so
+ * it is cached — a value that only moves once a year is safe to hold for a day.
+ */
+async function copyrightYear() {
+  "use cache";
+  cacheLife("days");
+  return new Date().getFullYear();
+}
+
+export async function Footer() {
+  const year = await copyrightYear();
+
   return (
     <footer className="mt-20 border-t border-brand-100 bg-cream print:hidden">
       <div className="container-x grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
@@ -79,7 +92,7 @@ export function Footer() {
 
       <div className="border-t border-brand-100">
         <div className="container-x flex flex-col items-center justify-between gap-2 py-5 text-xs text-ink/60 sm:flex-row">
-          <p>© {new Date().getFullYear()} {SITE.name}. All rights reserved.</p>
+          <p>© {year} {SITE.name}. All rights reserved.</p>
           <p className="flex items-center gap-3">
             <span>Cash on Delivery &amp; online payment available</span>
             <Link href="/admin" className="inline-block transition-all duration-200 hover:translate-x-1 hover:text-brand-600">Admin</Link>

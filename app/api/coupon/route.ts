@@ -2,8 +2,6 @@ import { couponUsesByPhone } from "@/lib/orders";
 import { applyCoupon } from "@/lib/pricing";
 import { getCouponByCode, getProductById } from "@/lib/queries";
 
-export const dynamic = "force-dynamic";
-
 export async function POST(req: Request) {
   let body: { code?: string; phone?: string; items?: Array<{ productId: number; qty: number }> };
   try {

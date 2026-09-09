@@ -1,11 +1,11 @@
+import { revalidateTag } from "next/cache";
 import { currentUser } from "@/lib/auth-customer";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { sendOrderAlert } from "@/lib/notify";
 import { cancelBlockedReason, cancelOrder, mayAccessOrder } from "@/lib/orders";
 import { getOrderByNo } from "@/lib/queries";
 import { allowRequest, clientIp } from "@/lib/ratelimit";
 import { SITE } from "@/lib/site";
-
-export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   if (!(await allowRequest(`cancel:${clientIp(req)}`, 10, 600))) {
@@ -50,6 +50,9 @@ export async function POST(req: Request) {
   if (result !== "cancelled") {
     return Response.json({ error: "Order not found." }, { status: 404 });
   }
+
+  // The cancellation released this order's stock back to the products.
+  revalidateTag(CACHE_TAGS.products, "max");
 
   const updated = await getOrderByNo(orderNo);
   if (updated) void sendOrderAlert(updated);

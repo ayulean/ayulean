@@ -1,4 +1,6 @@
+import { revalidateTag } from "next/cache";
 import { currentUser } from "@/lib/auth-customer";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { couponUsesByPhone, orderNumber, reserveOrderStock } from "@/lib/orders";
 import { sendOrderAlert, sendOrderConfirmation } from "@/lib/notify";
 import { allowRequest, clientIp } from "@/lib/ratelimit";
@@ -7,8 +9,6 @@ import { getCouponByCode, getOrderByNo, getProductById } from "@/lib/queries";
 import { onlinePaymentEnabled, razorpay, RZP_KEY_ID } from "@/lib/razorpay";
 import { db } from "@/lib/supabase";
 import type { CartItem } from "@/lib/types";
-
-export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   // 10 orders per IP per 10 minutes — generous for a real shopper, useless for a bot.
@@ -120,6 +120,7 @@ export async function POST(req: Request) {
   if (paymentMethod === "cod") {
     try {
       await reserveOrderStock(orderNo);
+      revalidateTag(CACHE_TAGS.products, "max");
     } catch (err) {
       // The order is already saved — never fail the customer over a stock counter.
       console.error("Stock reservation failed for", orderNo, err);

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import ProductCard from "@/components/ProductCard";
+import ProductGridSkeleton from "@/components/ProductGridSkeleton";
 import { getProducts } from "@/lib/queries";
 import { SITE } from "@/lib/site";
-
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Shop",
@@ -18,7 +18,29 @@ const SORTS = [
   { value: "discount", label: "Biggest discount" },
 ];
 
-export default async function ProductsPage({ searchParams }: PageProps<"/products">) {
+/**
+ * The heading is the same on every visit, so it is prerendered and served
+ * straight away. Only the part that depends on the query string — the search
+ * box and the grid it filters — waits for the request.
+ */
+export default function ProductsPage({ searchParams }: PageProps<"/products">) {
+  return (
+    <div className="container-x py-12 lg:py-16">
+      <header className="text-center">
+        <h1 className="font-display text-4xl font-bold text-brand-900">Shop</h1>
+        <p className="mx-auto mt-3 max-w-xl text-ink/60">
+          Every product is based on a classical Ayurvedic formulation — GMP certified and lab tested.
+        </p>
+      </header>
+
+      <Suspense fallback={<ProductGridSkeleton />}>
+        <Results searchParams={searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function Results({ searchParams }: Pick<PageProps<"/products">, "searchParams">) {
   const sp = await searchParams;
   const q = (typeof sp.q === "string" ? sp.q : "").trim();
   const sort = typeof sp.sort === "string" ? sp.sort : "featured";
@@ -39,14 +61,7 @@ export default async function ProductsPage({ searchParams }: PageProps<"/product
   else if (sort === "discount") sorted.sort((a, b) => b.discountPercent - a.discountPercent);
 
   return (
-    <div className="container-x py-12 lg:py-16">
-      <header className="text-center">
-        <h1 className="font-display text-4xl font-bold text-brand-900">Shop</h1>
-        <p className="mx-auto mt-3 max-w-xl text-ink/60">
-          Every product is based on a classical Ayurvedic formulation — GMP certified and lab tested.
-        </p>
-      </header>
-
+    <>
       <form method="get" className="mx-auto mt-8 flex max-w-2xl flex-col gap-3 sm:flex-row">
         <input
           type="search"
@@ -93,6 +108,6 @@ export default async function ProductsPage({ searchParams }: PageProps<"/product
           ))}
         </div>
       )}
-    </div>
+    </>
   );
 }

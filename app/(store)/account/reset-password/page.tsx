@@ -3,7 +3,12 @@ import AccountsDisabled from "@/components/account/AccountsDisabled";
 import PasswordForm from "@/components/account/PasswordForm";
 import { accountsEnabled } from "@/lib/auth-customer";
 
-export const dynamic = "force-dynamic";
+/**
+ * A personal page: it exists only for the signed-in customer, or for one
+ * specific order. There is no shared shell worth prerendering, so it blocks on
+ * the server rather than streaming an empty frame first.
+ */
+export const instant = false;
 
 export const metadata: Metadata = { title: "Set a new password", robots: { index: false } };
 

@@ -4,8 +4,6 @@ import { allowRequest, clientIp } from "@/lib/ratelimit";
 import { SITE } from "@/lib/site";
 import { db } from "@/lib/supabase";
 
-export const dynamic = "force-dynamic";
-
 const REASONS = ["Damaged or leaked", "Seal broken / tampered", "Wrong product received", "Expired product", "Other"];
 
 export async function POST(req: Request) {

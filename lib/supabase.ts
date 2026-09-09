@@ -22,10 +22,11 @@ export function db(): SupabaseClient {
     );
   }
 
+  // Freshness is decided one layer up: reads that may be served from cache are
+  // wrapped in `use cache` and expired by tag (see lib/cache-tags.ts), and
+  // everything else is uncached and therefore always hits Supabase.
   client ??= createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
-    // Storefront data must never be served from a stale fetch cache.
-    global: { fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }) },
   });
 
   return client;

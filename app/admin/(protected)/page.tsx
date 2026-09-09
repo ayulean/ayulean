@@ -3,8 +3,6 @@ import Link from "next/link";
 import { money } from "@/lib/pricing";
 import { dashboardStats, getOrders, getProducts } from "@/lib/queries";
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = { title: "Admin Dashboard", robots: { index: false } };
 
 export default async function AdminDashboard() {

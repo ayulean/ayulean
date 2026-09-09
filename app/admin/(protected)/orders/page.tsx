@@ -4,8 +4,6 @@ import { updateOrderAction } from "@/lib/actions";
 import { money } from "@/lib/pricing";
 import { getOrders } from "@/lib/queries";
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = { title: "Orders", robots: { index: false } };
 
 const STATUSES = ["placed", "confirmed", "shipped", "delivered", "replacement", "cancelled", "pending_payment"];

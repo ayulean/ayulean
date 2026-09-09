@@ -4,7 +4,12 @@ import CheckoutClient from "@/components/CheckoutClient";
 import { accountsEnabled, currentProfile, currentUser } from "@/lib/auth-customer";
 import { onlinePaymentEnabled } from "@/lib/razorpay";
 
-export const dynamic = "force-dynamic";
+/**
+ * A personal page: it exists only for the signed-in customer, or for one
+ * specific order. There is no shared shell worth prerendering, so it blocks on
+ * the server rather than streaming an empty frame first.
+ */
+export const instant = false;
 
 export const metadata: Metadata = { title: "Checkout", robots: { index: false } };
 

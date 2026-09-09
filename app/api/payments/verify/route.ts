@@ -1,10 +1,10 @@
+import { revalidateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { sendOrderAlert, sendOrderConfirmation } from "@/lib/notify";
 import { reserveOrderStock } from "@/lib/orders";
 import { getOrderByNo } from "@/lib/queries";
 import { verifySignature } from "@/lib/razorpay";
 import { db } from "@/lib/supabase";
-
-export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   let body: Record<string, string>;
@@ -46,6 +46,7 @@ export async function POST(req: Request) {
 
   if (updated && updated.length > 0) {
     await reserveOrderStock(orderNo);
+    revalidateTag(CACHE_TAGS.products, "max");
 
     const saved = await getOrderByNo(orderNo);
     if (saved) void Promise.all([sendOrderConfirmation(saved), sendOrderAlert(saved)]);

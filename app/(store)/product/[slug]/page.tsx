@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import AddToCart from "@/components/AddToCart";
 import ProductCard from "@/components/ProductCard";
+import ProductDetailSkeleton from "@/components/ProductDetailSkeleton";
 import ProductGallery from "@/components/ProductGallery";
 import ReviewForm from "@/components/ReviewForm";
 import Stars from "@/components/Stars";
@@ -13,8 +15,6 @@ import { money } from "@/lib/pricing";
 import { getProductBySlug, getProducts, getReviews, ratingBreakdown } from "@/lib/queries";
 import { complianceRows, SITE } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
-
 export async function generateMetadata({ params }: PageProps<"/product/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
@@ -22,7 +22,20 @@ export async function generateMetadata({ params }: PageProps<"/product/[slug]">)
   return { title: product.name, description: product.subtitle };
 }
 
-export default async function ProductPage({ params }: PageProps<"/product/[slug]">) {
+/**
+ * The slug is only known at request time, so it is awaited inside the boundary.
+ * That lets Next.js prerender a shell for any product URL and stream the
+ * product itself in, instead of holding the whole response back.
+ */
+export default function ProductPage({ params }: PageProps<"/product/[slug]">) {
+  return (
+    <Suspense fallback={<ProductDetailSkeleton />}>
+      <ProductDetail params={params} />
+    </Suspense>
+  );
+}
+
+async function ProductDetail({ params }: Pick<PageProps<"/product/[slug]">, "params">) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product || !product.active) notFound();

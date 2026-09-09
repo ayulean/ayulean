@@ -1,8 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { ADMIN_PASSWORD, clearAdminCookie, isAdmin, setAdminCookie } from "./auth";
+import { CACHE_TAGS } from "./cache-tags";
 import { parseBundleItems } from "./bundle";
 import { sendReplacementStatusEmail, sendShippingUpdate } from "./notify";
 import { releaseOrderStock, reserveOrderStock } from "./orders";
@@ -117,7 +118,7 @@ export async function saveProductAction(formData: FormData) {
     throw new Error(`Failed to save product: ${res.error.message}`);
   }
 
-  revalidatePath("/", "layout");
+  updateTag(CACHE_TAGS.products);
   redirect("/admin/products?saved=1");
 }
 
@@ -149,7 +150,7 @@ export async function deleteProductAction(formData: FormData) {
     if (res.error) throw new Error(`Failed to delete product: ${res.error.message}`);
   }
 
-  revalidatePath("/", "layout");
+  updateTag(CACHE_TAGS.products);
   redirect("/admin/products?deleted=1");
 }
 
@@ -205,7 +206,7 @@ export async function setReviewApprovalAction(formData: FormData) {
     if (res.error) throw new Error(`Failed to update review: ${res.error.message}`);
   }
 
-  revalidatePath("/", "layout");
+  updateTag(CACHE_TAGS.reviews);
 }
 
 export async function deleteReviewAction(formData: FormData) {
@@ -217,7 +218,7 @@ export async function deleteReviewAction(formData: FormData) {
     if (res.error) throw new Error(`Failed to delete review: ${res.error.message}`);
   }
 
-  revalidatePath("/", "layout");
+  updateTag(CACHE_TAGS.reviews);
 }
 
 export async function addReviewAsAdminAction(formData: FormData) {
@@ -235,7 +236,7 @@ export async function addReviewAsAdminAction(formData: FormData) {
     .insert({ product_id: productId, name, email: "", rating, title, body, approved: true });
   if (res.error) throw new Error(`Failed to add review: ${res.error.message}`);
 
-  revalidatePath("/", "layout");
+  updateTag(CACHE_TAGS.reviews);
 }
 
 /* ---------------- orders ---------------- */
@@ -283,6 +284,9 @@ export async function updateOrderAction(formData: FormData) {
     if (after) void sendShippingUpdate(after);
   }
 
+  // Cancelling or reinstating an order moves stock, so the storefront
+  // copy of the products has to be expired too.
+  updateTag(CACHE_TAGS.products);
   revalidatePath("/admin/orders");
 }
 

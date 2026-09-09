@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import ProductForm, { type ProductDraft } from "@/components/admin/ProductForm";
 import { getProductById, getProducts } from "@/lib/queries";
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = { title: "Add a new product", robots: { index: false } };
 
 export default async function NewProductPage({ searchParams }: PageProps<"/admin/products/new">) {
