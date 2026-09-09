@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { browserClient } from "@/lib/supabase-browser";
+import Icon from "../Icon";
 
-const field =
-  "mt-1 w-full rounded-lg border border-brand-200 px-3 py-2.5 focus:border-brand-500 focus:outline-none";
+const field = "field mt-1";
 
 /**
  * Sets a new password.
@@ -81,7 +81,8 @@ export function PasswordForm({ mode }: { mode: "reset" | "change" }) {
   if (done) {
     return (
       <p className="rounded-xl bg-brand-50 p-5 text-sm text-brand-800">
-        ✓ Your password has been updated{mode === "reset" ? " — taking you to your account…" : "."}
+        <Icon name="check-circle" size={16} className="mr-1.5 inline-block align-[-3px]" />
+        Your password has been updated{mode === "reset" ? " — taking you to your account…" : "."}
       </p>
     );
   }
@@ -127,7 +128,7 @@ export function PasswordForm({ mode }: { mode: "reset" | "change" }) {
       <button
         type="submit"
         disabled={busy || !ready}
-        className="rounded-full bg-brand-600 px-8 py-3 font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+        className="btn btn-primary"
       >
         {busy ? "Saving…" : "Update password"}
       </button>

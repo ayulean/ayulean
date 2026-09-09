@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Icon from "./Icon";
 
 const REASONS = [
   "Ordered by mistake",
@@ -55,7 +56,12 @@ export function CancelOrderButton({
   }
 
   if (done) {
-    return <p className="rounded-xl bg-brand-50 p-4 text-sm leading-relaxed text-brand-800">✓ {done}</p>;
+    return (
+      <p className="flex items-start gap-2 rounded-xl bg-brand-50 p-4 text-sm leading-relaxed text-brand-800">
+        <Icon name="check-circle" size={16} className="mt-0.5" />
+        {done}
+      </p>
+    );
   }
 
   if (!open) {

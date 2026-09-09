@@ -5,14 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { SITE } from "@/lib/site";
+import Icon from "./Icon";
 import { useCart } from "./CartProvider";
 
 const NAV = [
   { href: "/", label: "Home" },
   { href: "/products", label: "Shop" },
   { href: "/about", label: "About" },
-  { href: "/policies/replacement", label: "7-Day Replacement" },
-  { href: "/wishlist", label: "Wishlist" },
+  { href: "/policies/replacement", label: "Replacement" },
   { href: "/track", label: "Track Order" },
   { href: "/contact", label: "Contact" },
 ];
@@ -26,11 +26,11 @@ const isActive = (pathname: string | null, href: string) =>
  * `pathname` is passed in rather than read here so the same component can serve
  * as its own Suspense fallback: on a route whose path is not known until the
  * request (a product page), the header still prerenders — it just arrives
- * without the active-page underline, which fills in a moment later.
+ * without the active-page marker, which fills in a moment later.
  */
 function DesktopNav({ pathname }: { pathname: string | null }) {
   return (
-    <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-ink/80">
+    <nav className="hidden items-center gap-0.5 lg:flex">
       {NAV.map((n) => {
         const active = isActive(pathname, n.href);
         return (
@@ -38,17 +38,17 @@ function DesktopNav({ pathname }: { pathname: string | null }) {
             key={n.href}
             href={n.href}
             aria-current={active ? "page" : undefined}
-            className={`group relative py-1 transition-colors hover:text-brand-600 ${active ? "text-brand-700" : ""}`}
+            className={`relative rounded-full px-3.5 py-2 text-sm font-medium transition-colors duration-200 ${
+              active ? "text-brand-700" : "text-ink/65 hover:bg-brand-50 hover:text-brand-700"
+            }`}
           >
             {n.label}
-            {/* Underline grows from the centre on hover, and stays put on
-                the page you are already on. */}
-            <span
-              aria-hidden="true"
-              className={`absolute inset-x-0 -bottom-0.5 h-0.5 origin-center rounded-full bg-brand-500 transition-transform duration-300 ease-out group-hover:scale-x-100 ${
-                active ? "scale-x-100" : "scale-x-0"
-              }`}
-            />
+            {active && (
+              <span
+                aria-hidden="true"
+                className="absolute inset-x-3.5 -bottom-1 h-0.5 rounded-full bg-brand-600"
+              />
+            )}
           </Link>
         );
       })}
@@ -63,19 +63,24 @@ function LiveDesktopNav() {
 function MobileNavLinks({ pathname, onNavigate }: { pathname: string | null; onNavigate: () => void }) {
   return (
     <>
-      {NAV.map((n, i) => (
-        <Link
-          key={n.href}
-          href={n.href}
-          style={{ "--i": i } as React.CSSProperties}
-          onClick={onNavigate}
-          className={`anim-fade-up py-2.5 text-sm font-medium transition-colors hover:text-brand-600 ${
-            isActive(pathname, n.href) ? "text-brand-700" : "text-ink/80"
-          }`}
-        >
-          {n.label}
-        </Link>
-      ))}
+      {NAV.map((n, i) => {
+        const active = isActive(pathname, n.href);
+        return (
+          <Link
+            key={n.href}
+            href={n.href}
+            style={{ "--i": i } as React.CSSProperties}
+            onClick={onNavigate}
+            aria-current={active ? "page" : undefined}
+            className={`anim-fade-up flex items-center justify-between rounded-xl px-3 py-3 text-[0.9375rem] font-medium transition-colors ${
+              active ? "bg-brand-50 text-brand-700" : "text-ink/75 hover:bg-brand-50"
+            }`}
+          >
+            {n.label}
+            <Icon name="arrow-right" size={16} className="opacity-30" />
+          </Link>
+        );
+      })}
     </>
   );
 }
@@ -103,6 +108,16 @@ export function Header({ accountBar, accountMenu }: { accountBar: ReactNode; acc
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // The page behind an open mobile menu must not scroll.
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [open]);
+
   // Bump the cart badge on every change except the first paint, so restoring a
   // saved cart on load does not animate.
   const [bump, setBump] = useState(0);
@@ -115,43 +130,55 @@ export function Header({ accountBar, accountMenu }: { accountBar: ReactNode; acc
 
   return (
     <>
-      <div className="bg-brand-700 text-white text-xs sm:text-sm print:hidden">
-        <div className="container-x flex items-center justify-center gap-2 py-2 text-center">
-          <span className="hidden sm:inline">🌿</span>
-          <span>
+      <div className="bg-brand-800 text-white print:hidden">
+        <div className="container-x flex items-center justify-center gap-2 py-2 text-center text-[0.8125rem] leading-snug">
+          <Icon name="leaf" size={15} className="hidden opacity-70 sm:block" />
+          {/* The full line is a mouthful on a phone, so the narrow screen gets
+              the two facts that actually move a sale. */}
+          <span className="sm:hidden">
+            Free shipping over {SITE.currency}
+            {SITE.freeShippingAbove} · COD available
+          </span>
+          <span className="hidden sm:inline">
             100% Ayurvedic · Free shipping over {SITE.currency}
-            {SITE.freeShippingAbove} · {SITE.replacementDays}-Day Easy Replacement
+            {SITE.freeShippingAbove} · {SITE.replacementDays}-day replacement
           </span>
         </div>
       </div>
 
+      {open && (
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-hidden="true"
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 z-40 cursor-default bg-ink/25 lg:hidden"
+        />
+      )}
+
       <header
         style={{ viewTransitionName: "site-header" }}
-        className={`sticky top-0 z-50 border-b bg-white/85 backdrop-blur-md transition-[box-shadow,border-color,background-color] duration-300 print:hidden ${
-          scrolled ? "border-brand-100 shadow-sm shadow-brand-900/5" : "border-transparent"
+        className={`sticky top-0 z-50 border-b bg-white/85 backdrop-blur-md transition-[box-shadow,border-color] duration-300 print:hidden ${
+          scrolled || open ? "border-line shadow-soft" : "border-transparent"
         }`}
       >
         <div
-          className={`container-x flex items-center justify-between gap-4 transition-[height] duration-300 ${
+          className={`container-x flex items-center justify-between gap-3 transition-[height] duration-300 ${
             scrolled ? "h-14" : "h-16"
           }`}
         >
-          <Link href="/" className="group flex items-center gap-2.5">
+          <Link href="/" className="group flex min-w-0 items-center gap-2.5">
             <Image
               src={SITE.logo}
-              alt={`${SITE.name} logo`}
+              alt=""
               width={44}
               height={44}
-              className={`rounded-full object-cover ring-1 ring-brand-200 transition-all duration-300 group-hover:ring-brand-400 group-hover:rotate-6 ${
-                scrolled ? "h-9 w-9" : "h-11 w-11"
+              className={`rounded-full object-cover ring-1 ring-line transition-all duration-300 group-hover:ring-brand-300 ${
+                scrolled ? "h-9 w-9" : "h-10 w-10"
               }`}
               priority
             />
-            <span
-              className={`font-display font-bold tracking-tight text-brand-800 transition-all duration-300 ${
-                scrolled ? "text-xl" : "text-2xl"
-              }`}
-            >
+            <span className="truncate font-display text-[1.0625rem] font-bold tracking-tight text-brand-800 sm:text-xl">
               {SITE.name}
             </span>
           </Link>
@@ -160,64 +187,45 @@ export function Header({ accountBar, accountMenu }: { accountBar: ReactNode; acc
             <LiveDesktopNav />
           </Suspense>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {accountBar}
+
             <Link
               href="/cart"
-              className="relative inline-flex items-center gap-2 rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-brand-600/20 transition-all duration-200 hover:bg-brand-700 hover:shadow-md hover:shadow-brand-600/30"
+              aria-label={`Cart, ${ready ? count : 0} items`}
+              className="relative inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-700 transition-colors hover:bg-brand-50 sm:h-auto sm:w-auto sm:gap-2 sm:bg-brand-600 sm:px-4 sm:py-2.5 sm:text-white sm:shadow-soft sm:hover:bg-brand-700"
             >
-              Cart
+              <Icon name="bag" size={19} />
+              <span className="hidden text-sm font-semibold sm:inline">Cart</span>
               <span
                 key={bump}
-                className="anim-pop inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1 text-xs font-bold text-brand-700"
+                className="anim-pop absolute -right-0.5 -top-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-gold-500 px-1 text-[0.6875rem] font-bold text-white ring-2 ring-white sm:static sm:bg-white sm:text-brand-700 sm:ring-0"
               >
                 {ready ? count : 0}
               </span>
             </Link>
+
             <button
               type="button"
               onClick={() => setOpen(!open)}
               aria-expanded={open}
-              aria-label="Menu"
-              className="lg:hidden rounded-md border border-brand-200 p-2 text-brand-700 transition-colors hover:bg-brand-50"
+              aria-label={open ? "Close menu" : "Open menu"}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-brand-700 transition-colors hover:bg-brand-50 lg:hidden"
             >
-              {/* Three bars fold into a cross. */}
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path
-                  d="M3 5h14"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  className="origin-center transition-transform duration-300"
-                  style={open ? { transform: "translateY(5px) rotate(45deg)" } : undefined}
-                />
-                <path
-                  d="M3 10h14"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  className="origin-center transition-opacity duration-200"
-                  style={open ? { opacity: 0 } : undefined}
-                />
-                <path
-                  d="M3 15h14"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  className="origin-center transition-transform duration-300"
-                  style={open ? { transform: "translateY(-5px) rotate(-45deg)" } : undefined}
-                />
-              </svg>
+              <Icon name={open ? "close" : "menu"} size={20} />
             </button>
           </div>
         </div>
 
         {open && (
-          <nav className="lg:hidden overflow-hidden border-t border-brand-100 bg-white">
-            <div className="container-x flex flex-col py-2">
+          <nav className="anim-slide-down border-t border-line bg-white lg:hidden">
+            <div className="container-x flex max-h-[70vh] flex-col gap-0.5 overflow-y-auto py-3">
               <Suspense fallback={<MobileNavLinks pathname={null} onNavigate={() => setOpen(false)} />}>
                 <LiveMobileNavLinks onNavigate={() => setOpen(false)} />
               </Suspense>
+
+              <div className="my-2 h-px bg-line" />
+
               {/* The link itself is server-rendered, so the close-on-tap handler
                   and the stagger delay live on a wrapper that adds no box. */}
               <span
@@ -227,12 +235,14 @@ export function Header({ accountBar, accountMenu }: { accountBar: ReactNode; acc
               >
                 {accountMenu}
               </span>
+
               <a
-                href={`tel:${SITE.phone.replace(/\s/g, "")}`}
+                href={`tel:${SITE.phoneRaw}`}
                 style={{ "--i": NAV.length + 1 } as React.CSSProperties}
-                className="anim-fade-up py-2.5 text-sm font-medium text-brand-700"
+                className="anim-fade-up flex items-center gap-2.5 rounded-xl px-3 py-3 text-[0.9375rem] font-medium text-brand-700 hover:bg-brand-50"
               >
-                📞 {SITE.phone}
+                <Icon name="phone" size={17} />
+                {SITE.phone}
               </a>
             </div>
           </nav>

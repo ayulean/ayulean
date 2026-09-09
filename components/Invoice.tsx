@@ -21,7 +21,7 @@ export function Invoice({ order }: { order: Order }) {
     <div className="print-sheet mx-auto max-w-3xl bg-white p-8 text-ink print:p-0">
       <PrintButton />
 
-      <header className="flex flex-wrap items-start justify-between gap-4 border-b border-brand-100 pb-6">
+      <header className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
         <div>
           <h1 className="font-display text-2xl font-bold text-brand-800">{SITE.name}</h1>
           <p className="mt-1 max-w-xs text-sm leading-relaxed text-ink/65">{SITE.address}</p>
@@ -73,7 +73,7 @@ export function Invoice({ order }: { order: Order }) {
 
       <table className="mt-8 w-full text-sm">
         <thead>
-          <tr className="border-y border-brand-100 text-left text-xs uppercase text-ink/50">
+          <tr className="border-y border-line text-left text-xs uppercase text-ink/50">
             <th className="py-2">Item</th>
             <th className="py-2 text-center">Qty</th>
             <th className="py-2 text-right">Rate</th>
@@ -120,14 +120,14 @@ export function Invoice({ order }: { order: Order }) {
             <dt className="text-ink/60">Shipping</dt>
             <dd>{order.shipping === 0 ? "FREE" : money(order.shipping)}</dd>
           </div>
-          <div className="flex justify-between border-t border-brand-100 pt-2 text-base font-bold">
+          <div className="flex justify-between border-t border-line pt-2 text-base font-bold">
             <dt>Total</dt>
             <dd>{money(order.total)}</dd>
           </div>
         </dl>
       </div>
 
-      <footer className="mt-10 border-t border-brand-100 pt-4 text-xs leading-relaxed text-ink/55">
+      <footer className="mt-10 border-t border-line pt-4 text-xs leading-relaxed text-ink/55">
         <p>
           This is a computer-generated invoice and does not require a signature.
           {gstRegistered ? " All prices are inclusive of GST." : ""} Covered by our {SITE.replacementDays}-day

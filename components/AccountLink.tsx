@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { accountsEnabled, currentUser, displayName } from "@/lib/auth-customer";
+import Icon from "./Icon";
 
 /**
  * The "Log in" / "<name>" link in the header.
@@ -17,8 +18,12 @@ export function AccountLinkView({ variant, name }: { variant: Variant; name: str
 
   if (variant === "menu") {
     return (
-      <Link href={href} className="anim-fade-up py-2.5 text-sm font-medium text-brand-700">
-        👤 {name ? "My account" : "Log in / Sign up"}
+      <Link
+        href={href}
+        className="anim-fade-up flex items-center gap-2.5 rounded-xl px-3 py-3 text-[0.9375rem] font-medium text-brand-700 hover:bg-brand-50"
+      >
+        <Icon name="user" size={17} />
+        {name ? "My account" : "Log in / Sign up"}
       </Link>
     );
   }
@@ -26,10 +31,11 @@ export function AccountLinkView({ variant, name }: { variant: Variant; name: str
   return (
     <Link
       href={href}
-      className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-brand-200 px-3 py-2 text-sm font-medium text-brand-700 transition-colors hover:border-brand-300 hover:bg-brand-50"
+      aria-label={name ? `Account: ${name}` : "Log in"}
+      className="inline-flex h-11 items-center justify-center gap-1.5 rounded-full px-3 text-sm font-medium text-brand-700 transition-colors hover:bg-brand-50"
     >
-      <span aria-hidden="true">👤</span>
-      {name ?? "Log in"}
+      <Icon name="user" size={18} />
+      <span className="hidden max-w-24 truncate sm:inline">{name ?? "Log in"}</span>
     </Link>
   );
 }

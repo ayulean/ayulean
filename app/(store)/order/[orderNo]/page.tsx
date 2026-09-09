@@ -8,6 +8,7 @@ import { canCancel } from "@/lib/orders";
 import ReplacementStatusCard from "@/components/ReplacementStatusCard";
 import { getOrderByNo, getReplacementForOrder } from "@/lib/queries";
 import { SITE } from "@/lib/site";
+import Icon from "@/components/Icon";
 
 /**
  * A personal page: it exists only for the signed-in customer, or for one
@@ -39,8 +40,10 @@ export default async function OrderPage({ params }: PageProps<"/order/[orderNo]"
       />
 
       <div className="mx-auto max-w-2xl">
-        <div className="rounded-3xl border border-brand-100 bg-gradient-to-b from-brand-50 to-white p-8 text-center">
-          <p className="text-5xl" aria-hidden="true">🎉</p>
+        <div className="rounded-3xl border border-line bg-gradient-to-b from-brand-50 to-white p-8 text-center">
+          <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-600 text-white">
+            <Icon name="check" size={28} strokeWidth={2.5} />
+          </span>
           <h1 className="mt-4 font-display text-3xl font-bold text-brand-900">Your order is confirmed!</h1>
           <p className="mt-2 text-ink/65">
             Thank you, {order.customer_name}! Your order number is
@@ -57,10 +60,10 @@ export default async function OrderPage({ params }: PageProps<"/order/[orderNo]"
           </p>
         </div>
 
-        <div className="mt-8 rounded-2xl border border-brand-100 p-6">
+        <div className="mt-8 rounded-card border border-line p-6">
           <h2 className="font-display text-xl font-bold text-brand-800">Order details</h2>
 
-          <ul className="mt-4 divide-y divide-brand-100">
+          <ul className="mt-4 divide-y divide-line">
             {items.map((i) => (
               <li key={i.productId} className="flex justify-between py-3 text-sm">
                 <span>
@@ -72,7 +75,7 @@ export default async function OrderPage({ params }: PageProps<"/order/[orderNo]"
             ))}
           </ul>
 
-          <dl className="mt-4 space-y-2 border-t border-brand-100 pt-4 text-sm">
+          <dl className="mt-4 space-y-2 border-t border-line pt-4 text-sm">
             <div className="flex justify-between"><dt className="text-ink/60">Subtotal</dt><dd>{money(order.subtotal)}</dd></div>
             {order.discount > 0 && (
               <div className="flex justify-between text-brand-700">
@@ -84,17 +87,18 @@ export default async function OrderPage({ params }: PageProps<"/order/[orderNo]"
               <dt className="text-ink/60">Shipping</dt>
               <dd>{order.shipping === 0 ? "FREE" : money(order.shipping)}</dd>
             </div>
-            <div className="flex justify-between border-t border-brand-100 pt-2 text-base font-bold">
+            <div className="flex justify-between border-t border-line pt-2 text-base font-bold">
               <dt>Total</dt><dd className="text-brand-700">{money(order.total)}</dd>
             </div>
           </dl>
 
-          <div className="mt-6 rounded-xl bg-cream p-4 text-sm text-ink/70">
+          <div className="mt-6 rounded-xl bg-surface-muted p-4 text-sm text-ink/70">
             <p className="font-semibold text-brand-800">Delivery address</p>
             <p className="mt-1">
               {order.customer_name}, {order.address}, {order.city}, {order.state} — {order.pincode}
               <br />
-              📞 {order.phone}
+              <Icon name="phone" size={15} className="mr-1.5 inline-block align-[-2px] text-brand-500" />
+              {order.phone}
             </p>
           </div>
 
@@ -139,7 +143,7 @@ export default async function OrderPage({ params }: PageProps<"/order/[orderNo]"
             href={`https://wa.me/${SITE.phoneRaw}?text=${encodeURIComponent(`Hi ${SITE.name}, my order number is ${order.order_no}.`)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-full bg-brand-600 px-6 py-3 font-semibold text-white hover:bg-brand-700"
+            className="btn btn-primary"
           >
             Get help on WhatsApp
           </a>

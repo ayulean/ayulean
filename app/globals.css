@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   Design tokens
+   The brand stays the Ayurvedic green it always was. What changed is
+   everything around it: borders are a neutral hairline instead of tinted
+   green, shadows are layered and soft rather than one heavy drop, and radii
+   and type sizes come from a scale instead of being picked per component.
+   --------------------------------------------------------------------------- */
+
 @theme {
   --color-brand-50:  #f2f9f1;
   --color-brand-100: #e0f0dd;
@@ -19,16 +27,35 @@
   --color-cream: #fdfaf3;
   --color-ink: #1b2318;
 
+  /* Neutral surfaces and hairlines. A green-tinted border on every card is
+     what made the old layout feel busy; these keep the green for things that
+     are actually the brand. */
+  --color-surface: #ffffff;
+  --color-surface-muted: #faf9f5;
+  --color-line: #e7e5dd;
+  --color-line-strong: #d3d0c5;
+
   --font-sans: var(--font-sans-custom), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display-custom), Georgia, serif;
+
+  --radius-card: 1rem;
+  --radius-panel: 1.5rem;
+
+  /* Two-layer shadows: a tight contact shadow plus a wide soft one. */
+  --shadow-soft: 0 1px 2px rgb(27 35 24 / 0.04), 0 2px 8px rgb(27 35 24 / 0.04);
+  --shadow-card: 0 1px 2px rgb(27 35 24 / 0.05), 0 8px 24px -8px rgb(27 35 24 / 0.10);
+  --shadow-lift: 0 2px 4px rgb(27 35 24 / 0.06), 0 16px 40px -12px rgb(27 35 24 / 0.18);
 }
 
 html {
   scroll-behavior: smooth;
+  /* Stops the sticky header from covering an anchor target. */
+  scroll-padding-top: 5.5rem;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: #ffffff;
+  background: var(--color-surface);
   color: var(--color-ink);
   font-family: var(--font-sans);
 }
@@ -38,7 +65,7 @@ body {
   width: 100%;
   max-width: 1200px;
   margin-inline: auto;
-  padding-inline: 1rem;
+  padding-inline: 1.25rem;
 }
 
 @media (min-width: 768px) {
@@ -53,6 +80,145 @@ body {
 
 input, select, textarea {
   font: inherit;
+}
+
+/* ---------------------------------------------------------------------------
+   Components
+   The pages used to repeat fifteen Tailwind classes for every button. These
+   give the store one button, one card and one input, so a change lands
+   everywhere at once and nothing drifts out of step.
+   --------------------------------------------------------------------------- */
+
+/* Declared in the `components` layer on purpose: Tailwind emits its own
+   utilities in a later layer, so `w-48` or `flex-1` on an element still beats
+   the width these rules set. Unlayered CSS would win instead and quietly break
+   any input sitting in a flex row. */
+@layer components {
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    /* 44px is the smallest comfortable tap target on a phone. */
+    min-height: 2.75rem;
+    padding-inline: 1.25rem;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color var(--dur-base) var(--ease-out-soft),
+      border-color var(--dur-base) var(--ease-out-soft),
+      color var(--dur-base) var(--ease-out-soft),
+      box-shadow var(--dur-base) var(--ease-out-soft),
+      transform var(--dur-fast) var(--ease-out-soft);
+  }
+
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  .btn-primary {
+    background: var(--color-brand-600);
+    color: #fff;
+    box-shadow: var(--shadow-soft);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-brand-700);
+    box-shadow: var(--shadow-card);
+  }
+
+  .btn-secondary {
+    background: var(--color-surface);
+    color: var(--color-brand-700);
+    border-color: var(--color-line-strong);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    border-color: var(--color-brand-400);
+    background: var(--color-brand-50);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--color-brand-700);
+  }
+  .btn-ghost:hover:not(:disabled) { background: var(--color-brand-50); }
+
+  .btn-lg { min-height: 3.25rem; padding-inline: 1.75rem; font-size: 1rem; }
+  .btn-sm { min-height: 2.25rem; padding-inline: 0.875rem; font-size: 0.8125rem; }
+  .btn-block { display: flex; width: 100%; }
+
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+  }
+
+  .card-pad { padding: 1.25rem; }
+  @media (min-width: 640px) { .card-pad { padding: 1.5rem; } }
+
+  /* Form controls. One look for every input, select and textarea on the site. */
+  .field {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.625rem 0.875rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line-strong);
+    border-radius: 0.75rem;
+    /* 16px, so iOS Safari does not zoom the page when the field is focused. */
+    font-size: 1rem;
+    color: var(--color-ink);
+    transition: border-color var(--dur-base) var(--ease-out-soft),
+                box-shadow var(--dur-base) var(--ease-out-soft);
+  }
+  .field::placeholder { color: rgb(27 35 24 / 0.4); }
+  .field:focus {
+    outline: none;
+    border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 3px rgb(63 140 57 / 0.15);
+  }
+
+  .label {
+    display: block;
+    margin-bottom: 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: color-mix(in srgb, var(--color-ink) 75%, transparent);
+  }
+
+  /* Small pill used for badges, statuses and category tags. */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  /* The small uppercase line that introduces a section. */
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-brand-600);
+  }
+
+  /* Consistent vertical rhythm between page sections. */
+  .section { padding-block: 3.5rem; }
+  @media (min-width: 1024px) { .section { padding-block: 5rem; } }
+
+  /* Anything that can outgrow the screen — tables, wide code, long rows —
+     scrolls inside itself instead of widening the page. */
+  .scroll-x {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -135,6 +301,7 @@ input, select, textarea {
 .anim-float    { animation: float-y 7s ease-in-out infinite; }
 .anim-glow     { animation: glow-pulse 7s ease-in-out infinite; }
 .anim-pop      { animation: pop var(--dur-base) var(--ease-spring); }
+.anim-slide-down { animation: slide-down var(--dur-base) var(--ease-out-soft) both; }
 
 /* Stagger: set --i on each child and they arrive one after another. */
 [style*="--i"].anim-fade-up,

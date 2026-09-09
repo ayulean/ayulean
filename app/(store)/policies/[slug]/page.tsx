@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { complianceRows, SITE } from "@/lib/site";
+import Icon from "@/components/Icon";
 
 type Policy = { title: string; intro: string; sections: Array<{ h: string; p: string[] }> };
 
@@ -224,16 +225,29 @@ export default async function PolicyPage({ params }: PageProps<"/policies/[slug]
           </section>
         ))}
 
-        <div className="mt-12 rounded-2xl border border-brand-100 bg-cream p-6 text-sm leading-relaxed text-ink/70">
+        <div className="mt-12 rounded-card border border-line bg-surface-muted p-6 text-sm leading-relaxed text-ink/70">
           <p className="font-semibold text-brand-800">Have a question?</p>
           <p className="mt-2">
             {SITE.address}
             <br />
-            📞 <a href={`tel:${SITE.phone.replace(/\s/g, "")}`} className="text-brand-700 hover:underline">{SITE.phone}</a> ·{" "}
-            ✉️ <a href={`mailto:${SITE.email}`} className="text-brand-700 hover:underline">{SITE.email}</a>
+            <a
+              href={`tel:${SITE.phoneRaw}`}
+              className="inline-flex items-center gap-1.5 text-brand-700 hover:underline"
+            >
+              <Icon name="phone" size={14} />
+              {SITE.phone}
+            </a>
+            {" · "}
+            <a
+              href={`mailto:${SITE.email}`}
+              className="inline-flex items-center gap-1.5 break-all text-brand-700 hover:underline"
+            >
+              <Icon name="mail" size={14} />
+              {SITE.email}
+            </a>
           </p>
 
-          <dl className="mt-5 grid gap-x-6 gap-y-2 border-t border-brand-100 pt-5 text-xs sm:grid-cols-[max-content_1fr]">
+          <dl className="mt-5 grid gap-x-6 gap-y-2 border-t border-line pt-5 text-xs sm:grid-cols-[max-content_1fr]">
             {rows.map((r) => (
               <div key={r.label} className="contents">
                 <dt className="font-semibold text-brand-800">{r.label}</dt>

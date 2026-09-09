@@ -6,8 +6,7 @@ import { useState } from "react";
 import { browserClient } from "@/lib/supabase-browser";
 import GoogleButton from "./GoogleButton";
 
-const field =
-  "mt-1 w-full rounded-lg border border-brand-200 px-3 py-2.5 focus:border-brand-500 focus:outline-none";
+const field = "field mt-1";
 
 export function AuthForm({ mode, next = "/account" }: { mode: "login" | "register"; next?: string }) {
   const router = useRouter();
@@ -85,9 +84,9 @@ export function AuthForm({ mode, next = "/account" }: { mode: "login" | "registe
       <GoogleButton next={next} />
 
       <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-wide text-ink/40">
-        <span className="h-px flex-1 bg-brand-100" />
+        <span className="h-px flex-1 bg-line" />
         or
-        <span className="h-px flex-1 bg-brand-100" />
+        <span className="h-px flex-1 bg-line" />
       </div>
 
       <form onSubmit={onSubmit} className="space-y-4">
@@ -130,7 +129,7 @@ export function AuthForm({ mode, next = "/account" }: { mode: "login" | "registe
         <button
           type="submit"
           disabled={busy}
-          className="w-full rounded-full bg-brand-600 py-3.5 font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+          className="btn btn-primary btn-lg btn-block"
         >
           {busy ? "Please wait…" : mode === "register" ? "Create account" : "Log in"}
         </button>

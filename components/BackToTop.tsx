@@ -25,7 +25,9 @@ export function BackToTop() {
       // and pointer events while it is off screen.
       aria-hidden={!show}
       tabIndex={show ? 0 : -1}
-      className={`fixed bottom-5 right-5 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-brand-200 bg-white/90 text-brand-700 shadow-lg backdrop-blur transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-brand-50 print:hidden ${
+      // On a phone the product page keeps a buy bar pinned to the bottom, so
+      // this sits above it and only drops to the corner on a wide screen.
+      className={`fixed bottom-20 right-4 z-30 flex h-11 w-11 items-center justify-center rounded-full border border-line bg-white/90 text-brand-700 shadow-card backdrop-blur transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-brand-50 lg:bottom-5 lg:right-5 print:hidden ${
         show ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
       }`}
     >

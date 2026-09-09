@@ -67,7 +67,7 @@ async function withStats(rows: ProductRow[]): Promise<Product[]> {
 
 export async function getProducts(opts: { includeInactive?: boolean } = {}): Promise<Product[]> {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag(CACHE_TAGS.products, CACHE_TAGS.reviews);
 
   let query = db().from("products").select("*").order("id", { ascending: false });
@@ -78,7 +78,7 @@ export async function getProducts(opts: { includeInactive?: boolean } = {}): Pro
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag(CACHE_TAGS.products, CACHE_TAGS.reviews);
 
   const rows = unwrap<ProductRow[]>(
@@ -90,7 +90,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
 export async function getProductById(id: number): Promise<Product | null> {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag(CACHE_TAGS.products, CACHE_TAGS.reviews);
 
   if (!Number.isFinite(id)) return null;
@@ -105,7 +105,7 @@ export async function getProductById(id: number): Promise<Product | null> {
 
 export async function getReviews(productId: number, approvedOnly = true): Promise<Review[]> {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag(CACHE_TAGS.reviews);
 
   let query = db().from("reviews").select("*").eq("product_id", productId).order("id", { ascending: false });
@@ -124,7 +124,7 @@ export async function getAllReviews(): Promise<Array<Review & { product_name: st
 
 export async function getApprovedReviewsAcrossStore(limit = 8): Promise<Array<Review & { product_slug: string }>> {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag(CACHE_TAGS.reviews);
 
   const rows = unwrap<Array<Review & { products: { slug: string } | null }>>(

@@ -1,6 +1,7 @@
 import { REPLACEMENT_STATUS, REPLACEMENT_STEPS } from "@/lib/replacement";
 import { SITE } from "@/lib/site";
 import type { ReplacementRequest } from "@/lib/types";
+import Icon from "./Icon";
 
 const TONE = {
   pending: "border-gold-400/40 bg-gold-400/10",
@@ -58,7 +59,7 @@ export function ReplacementStatusCard({ request }: { request: ReplacementRequest
                       done ? "bg-brand-600 text-white" : "bg-white/80 text-ink/40"
                     }`}
                   >
-                    {done ? "✓" : idx + 1}
+                    {done ? <Icon name="check" size={14} strokeWidth={3} /> : idx + 1}
                   </span>
                   <span className="mt-1.5 text-[10px] leading-tight text-ink/60">
                     {REPLACEMENT_STATUS[step].label}

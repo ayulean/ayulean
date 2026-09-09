@@ -43,7 +43,7 @@ export function ReviewForm({ productId }: { productId: number }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="rounded-2xl border border-brand-100 bg-cream p-6">
+    <form onSubmit={onSubmit} className="rounded-card border border-line bg-surface-muted p-6">
       <h3 className="font-display text-xl font-bold text-brand-800">Write a review</h3>
       <p className="mt-1 text-sm text-ink/60">Your feedback helps other customers decide.</p>
 
@@ -58,10 +58,12 @@ export function ReviewForm({ productId }: { productId: number }) {
               onClick={() => setRating(n)}
               onMouseEnter={() => setHover(n)}
               onMouseLeave={() => setHover(0)}
-              className="text-3xl leading-none transition"
-              style={{ color: n <= (hover || rating) ? "#e0b455" : "#d8d8d2" }}
+              className="-m-1 p-1 leading-none transition-transform duration-200 hover:scale-110"
+              style={{ color: n <= (hover || rating) ? "#e0b455" : "#d3d0c5" }}
             >
-              ★
+              <svg width="30" height="30" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path d="M10 1.5l2.6 5.27 5.82.85-4.21 4.1.99 5.78L10 14.77l-5.2 2.73.99-5.78-4.21-4.1 5.82-.85z" />
+              </svg>
             </button>
           ))}
         </div>
@@ -70,28 +72,28 @@ export function ReviewForm({ productId }: { productId: number }) {
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <label className="text-sm font-medium">
           Name *
-          <input name="name" required maxLength={60} className="mt-1 w-full rounded-lg border border-brand-200 px-3 py-2.5" />
+          <input name="name" required maxLength={60} className="field mt-1" />
         </label>
         <label className="text-sm font-medium">
           Email (optional)
-          <input name="email" type="email" className="mt-1 w-full rounded-lg border border-brand-200 px-3 py-2.5" />
+          <input name="email" type="email" className="field mt-1" />
         </label>
       </div>
 
       <label className="mt-4 block text-sm font-medium">
         Title
-        <input name="title" maxLength={80} placeholder="Sum up your experience in one line" className="mt-1 w-full rounded-lg border border-brand-200 px-3 py-2.5" />
+        <input name="title" maxLength={80} placeholder="Sum up your experience in one line" className="field mt-1" />
       </label>
 
       <label className="mt-4 block text-sm font-medium">
         Review *
-        <textarea name="body" required rows={4} maxLength={1500} className="mt-1 w-full rounded-lg border border-brand-200 px-3 py-2.5" />
+        <textarea name="body" required rows={4} maxLength={1500} className="field mt-1" />
       </label>
 
       <button
         type="submit"
         disabled={busy}
-        className="mt-5 rounded-full bg-brand-600 px-7 py-3 font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+        className="btn btn-primary mt-5"
       >
         {busy ? "Submitting…" : "Submit review"}
       </button>

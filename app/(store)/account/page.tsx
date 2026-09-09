@@ -5,6 +5,7 @@ import AccountsDisabled from "@/components/account/AccountsDisabled";
 import PasswordForm from "@/components/account/PasswordForm";
 import { saveProfileAction, signOutAction } from "@/lib/account-actions";
 import { accountsEnabled, currentProfile, currentUser, fullName } from "@/lib/auth-customer";
+import Icon from "@/components/Icon";
 
 /**
  * A personal page: it exists only for the signed-in customer, or for one
@@ -23,8 +24,7 @@ const STATES = [
   "West Bengal",
 ];
 
-const field =
-  "mt-1 w-full rounded-lg border border-brand-200 px-3 py-2.5 focus:border-brand-500 focus:outline-none";
+const field = "field mt-1";
 
 export default async function AccountPage({ searchParams }: PageProps<"/account">) {
   if (!accountsEnabled) return <AccountsDisabled />;
@@ -51,14 +51,14 @@ export default async function AccountPage({ searchParams }: PageProps<"/account"
           <div className="flex gap-3">
             <Link
               href="/account/orders"
-              className="rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+              className="btn btn-primary btn-sm"
             >
               My orders
             </Link>
             <form action={signOutAction}>
               <button
                 type="submit"
-                className="rounded-full border border-brand-300 px-6 py-2.5 text-sm font-semibold text-brand-700 hover:bg-brand-50"
+                className="btn btn-secondary btn-sm"
               >
                 Log out
               </button>
@@ -67,15 +67,18 @@ export default async function AccountPage({ searchParams }: PageProps<"/account"
         </div>
 
         {sp.saved && (
-          <p className="mt-6 rounded-lg bg-brand-100 p-3 text-sm text-brand-800">✓ Your details have been saved.</p>
+          <p className="mt-6 flex items-center gap-2 rounded-xl bg-brand-50 p-3 text-sm text-brand-800">
+            <Icon name="check-circle" size={16} />
+            Your details have been saved.
+          </p>
         )}
 
-        <section className="mt-8 rounded-2xl border border-brand-100 p-6">
+        <section className="mt-8 rounded-card border border-line p-6">
           <h2 className="font-display text-xl font-bold text-brand-800">Delivery details</h2>
           <p className="mt-1 text-sm text-ink/55">Saved here so checkout fills itself in next time.</p>
 
           {!hasName && (
-            <p className="mt-4 rounded-lg bg-cream p-3 text-sm text-ink/65">
+            <p className="mt-4 rounded-lg bg-surface-muted p-3 text-sm text-ink/65">
               Add your full name below — it goes on your invoices and delivery labels.
             </p>
           )}
@@ -124,14 +127,14 @@ export default async function AccountPage({ searchParams }: PageProps<"/account"
 
             <button
               type="submit"
-              className="mt-5 rounded-full bg-brand-600 px-8 py-3 font-semibold text-white hover:bg-brand-700"
+              className="btn btn-primary mt-5"
             >
               Save details
             </button>
           </form>
         </section>
 
-        <section className="mt-8 rounded-2xl border border-brand-100 p-6">
+        <section className="mt-8 rounded-card border border-line p-6">
           <h2 className="font-display text-xl font-bold text-brand-800">Password</h2>
 
           {hasPassword ? (
@@ -139,7 +142,7 @@ export default async function AccountPage({ searchParams }: PageProps<"/account"
               <PasswordForm mode="change" />
             </div>
           ) : (
-            <p className="mt-3 rounded-lg bg-cream p-4 text-sm leading-relaxed text-ink/65">
+            <p className="mt-3 rounded-lg bg-surface-muted p-4 text-sm leading-relaxed text-ink/65">
               You signed in with Google, so there is no password on this account. To add one, log out and use{" "}
               <Link href="/account/forgot-password" className="font-semibold text-brand-700 hover:underline">
                 Forgot password

@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { money, shippingFor } from "@/lib/pricing";
 import { trackBeginCheckout } from "@/lib/track";
 import { SITE } from "@/lib/site";
+import Icon from "./Icon";
 import { useCart } from "./CartProvider";
 
 const STATES = [
@@ -71,14 +72,30 @@ export function CheckoutClient({
   const shipping = shippingFor(subtotal - discount);
   const total = Math.max(0, subtotal - discount + shipping);
 
-  if (!ready) return <div className="container-x py-24 text-center text-ink/50">Loading…</div>;
+  if (!ready) {
+    return (
+      <div className="container-x py-20">
+        <div className="skeleton h-9 w-40 rounded-lg" />
+        <div className="mt-8 grid gap-6 lg:grid-cols-3">
+          <div className="skeleton h-96 rounded-card lg:col-span-2" />
+          <div className="skeleton h-80 rounded-card" />
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
-      <div className="container-x py-24 text-center">
-        <h1 className="font-display text-3xl font-bold text-brand-900">Your cart is empty</h1>
-        <Link href="/products" className="mt-6 inline-block rounded-full bg-brand-600 px-8 py-3.5 font-semibold text-white">
+      <div className="container-x flex flex-col items-center py-20 text-center sm:py-24">
+        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-muted text-brand-400">
+          <Icon name="bag" size={28} />
+        </span>
+        <h1 className="mt-5 font-display text-2xl font-bold tracking-tight text-brand-900 sm:text-3xl">
+          Your cart is empty
+        </h1>
+        <Link href="/products" className="btn btn-primary btn-lg mt-7">
           Browse the shop
+          <Icon name="arrow-right" size={17} />
         </Link>
       </div>
     );
@@ -181,28 +198,41 @@ export function CheckoutClient({
     rzp.open();
   }
 
-  const field = "mt-1 w-full rounded-lg border border-brand-200 px-3 py-2.5 focus:border-brand-500 focus:outline-none";
-
   return (
     <>
       {onlineEnabled && <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />}
 
-      <div className="container-x py-12">
-        <h1 className="font-display text-3xl font-bold text-brand-900">Checkout</h1>
+      <div className="container-x py-10 lg:py-14">
+        <h1 className="font-display text-3xl font-bold tracking-tight text-brand-900">Checkout</h1>
 
-        <form onSubmit={placeOrder} className="mt-8 grid gap-8 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
-            <section className="rounded-2xl border border-brand-100 p-6">
-              <h2 className="font-display text-xl font-bold text-brand-800">Delivery details</h2>
+        <form onSubmit={placeOrder} className="mt-8 grid gap-6 lg:grid-cols-3 lg:gap-8">
+          <div className="space-y-5 lg:col-span-2">
+            <section className="card card-pad">
+              <h2 className="flex items-center gap-2 font-display text-lg font-bold text-brand-800">
+                <Icon name="truck" size={18} className="text-brand-500" />
+                Delivery details
+              </h2>
 
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <label className="text-sm font-medium">
-                  Full name *
-                  <input name="name" required defaultValue={defaults?.name} autoComplete="name" className={field} />
-                </label>
-                <label className="text-sm font-medium">
-                  Mobile number *
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="co-name" className="label">
+                    Full name <span className="text-red-500">*</span>
+                  </label>
                   <input
+                    id="co-name"
+                    name="name"
+                    required
+                    defaultValue={defaults?.name}
+                    autoComplete="name"
+                    className="field"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="co-phone" className="label">
+                    Mobile number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="co-phone"
                     ref={phoneRef}
                     name="phone"
                     required
@@ -211,80 +241,145 @@ export function CheckoutClient({
                     placeholder="9876543210"
                     defaultValue={defaults?.phone}
                     autoComplete="tel"
-                    className={field}
+                    className="field"
                   />
-                </label>
+                </div>
               </div>
 
-              <label className="mt-4 block text-sm font-medium">
-                Email (optional)
-                <input name="email" type="email" className={field} />
-              </label>
+              <div className="mt-4">
+                <label htmlFor="co-email" className="label">
+                  Email <span className="font-normal text-ink/40">(optional)</span>
+                </label>
+                <input id="co-email" name="email" type="email" autoComplete="email" className="field" />
+              </div>
 
-              <label className="mt-4 block text-sm font-medium">
-                Address (house no, street, area) *
-                <textarea name="address" required rows={3} defaultValue={defaults?.address} className={field} />
-              </label>
+              <div className="mt-4">
+                <label htmlFor="co-address" className="label">
+                  Address — house no, street, area <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  id="co-address"
+                  name="address"
+                  required
+                  rows={3}
+                  defaultValue={defaults?.address}
+                  autoComplete="street-address"
+                  className="field"
+                />
+              </div>
 
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                <label className="text-sm font-medium">
-                  City *
-                  <input name="city" required defaultValue={defaults?.city} className={field} />
-                </label>
-                <label className="text-sm font-medium">
-                  State *
-                  <select name="state" required defaultValue={defaults?.state ?? ""} className={field}>
-                    <option value="" disabled>Select state</option>
+                <div>
+                  <label htmlFor="co-city" className="label">
+                    City <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="co-city"
+                    name="city"
+                    required
+                    defaultValue={defaults?.city}
+                    autoComplete="address-level2"
+                    className="field"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="co-state" className="label">
+                    State <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="co-state"
+                    name="state"
+                    required
+                    defaultValue={defaults?.state ?? ""}
+                    autoComplete="address-level1"
+                    className="field"
+                  >
+                    <option value="" disabled>
+                      Select state
+                    </option>
                     {STATES.map((s) => (
-                      <option key={s} value={s}>{s}</option>
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
                     ))}
                   </select>
-                </label>
-                <label className="text-sm font-medium">
-                  Pincode *
-                  <input name="pincode" required inputMode="numeric" pattern="[0-9]{6}" defaultValue={defaults?.pincode} className={field} />
-                </label>
+                </div>
+                <div>
+                  <label htmlFor="co-pincode" className="label">
+                    Pincode <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="co-pincode"
+                    name="pincode"
+                    required
+                    inputMode="numeric"
+                    pattern="[0-9]{6}"
+                    defaultValue={defaults?.pincode}
+                    autoComplete="postal-code"
+                    className="field"
+                  />
+                </div>
               </div>
 
-              <label className="mt-4 block text-sm font-medium">
-                Delivery note (optional)
-                <input name="notes" placeholder="Landmark or delivery instructions" className={field} />
-              </label>
+              <div className="mt-4">
+                <label htmlFor="co-notes" className="label">
+                  Delivery note <span className="font-normal text-ink/40">(optional)</span>
+                </label>
+                <input
+                  id="co-notes"
+                  name="notes"
+                  placeholder="Landmark or delivery instructions"
+                  className="field"
+                />
+              </div>
             </section>
 
-            <section className="rounded-2xl border border-brand-100 p-6">
-              <h2 className="font-display text-xl font-bold text-brand-800">Payment method</h2>
+            <section className="card card-pad">
+              <h2 className="flex items-center gap-2 font-display text-lg font-bold text-brand-800">
+                <Icon name="card" size={18} className="text-brand-500" />
+                Payment method
+              </h2>
 
-              <div className="mt-4 space-y-3">
+              <div className="mt-5 space-y-3">
                 {onlineEnabled && (
-                  <label className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4 transition ${method === "online" ? "border-brand-500 bg-brand-50" : "border-brand-100"}`}>
+                  <label
+                    className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors duration-200 ${
+                      method === "online" ? "border-brand-500 bg-brand-50" : "border-line hover:border-line-strong"
+                    }`}
+                  >
                     <input
                       type="radio"
                       name="paymentMethod"
                       checked={method === "online"}
                       onChange={() => setMethod("online")}
-                      className="mt-1"
+                      className="mt-1 accent-brand-600"
                     />
                     <span>
-                      <span className="block font-semibold text-brand-800">Online Payment (UPI / Card / Netbanking)</span>
-                      <span className="mt-1 block text-sm text-ink/60">
+                      <span className="block font-semibold text-brand-800">
+                        Online payment — UPI, card or netbanking
+                      </span>
+                      <span className="mt-1 block text-sm leading-relaxed text-ink/55">
                         Pay through Razorpay’s secure gateway. Instant confirmation.
                       </span>
                     </span>
                   </label>
                 )}
 
-                <label className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4 transition ${method === "cod" ? "border-brand-500 bg-brand-50" : "border-brand-100"}`}>
+                <label
+                  className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors duration-200 ${
+                    method === "cod" ? "border-brand-500 bg-brand-50" : "border-line hover:border-line-strong"
+                  }`}
+                >
                   <input
                     type="radio"
                     name="paymentMethod"
                     checked={method === "cod"}
                     onChange={() => setMethod("cod")}
-                    className="mt-1"
+                    className="mt-1 accent-brand-600"
                   />
                   <span>
-                    <span className="block font-semibold text-brand-800">Cash on Delivery (COD)</span>
-                    <span className="mt-1 block text-sm text-ink/60">
+                    <span className="block font-semibold text-brand-800">Cash on Delivery</span>
+                    <span className="mt-1 block text-sm leading-relaxed text-ink/55">
                       Pay the delivery partner in cash when the product arrives. No extra charge.
                     </span>
                   </span>
@@ -292,88 +387,102 @@ export function CheckoutClient({
               </div>
 
               {!onlineEnabled && (
-                <p className="mt-4 rounded-lg bg-cream p-3 text-xs text-ink/60">
-                  Online payment goes live once the Razorpay keys are set in <code>.env.local</code>. Until then,
-                  orders can be placed with Cash on Delivery.
+                <p className="mt-4 rounded-xl bg-surface-muted p-3 text-xs leading-relaxed text-ink/55">
+                  Online payment goes live once the Razorpay keys are set in <code>.env.local</code>. Until
+                  then, orders can be placed with Cash on Delivery.
                 </p>
               )}
             </section>
           </div>
 
-          <aside className="h-fit rounded-2xl border border-brand-100 bg-cream p-6">
-            <h2 className="font-display text-xl font-bold text-brand-800">Order Summary</h2>
+          <aside className="card card-pad h-fit bg-surface-muted lg:sticky lg:top-24">
+            <h2 className="font-display text-lg font-bold text-brand-800">Order summary</h2>
 
             <ul className="mt-4 space-y-3">
               {items.map((i) => (
                 <li key={i.productId} className="flex gap-3">
-                  <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-white">
+                  <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white">
                     <Image src={i.image} alt="" fill sizes="56px" className="object-cover" />
                   </span>
-                  <span className="flex-1 text-sm">
+                  <span className="min-w-0 flex-1 text-sm">
                     <span className="block font-medium text-ink/85">{i.name}</span>
-                    <span className="text-ink/55">Qty {i.qty}</span>
+                    <span className="text-ink/50">Qty {i.qty}</span>
                   </span>
-                  <span className="text-sm font-semibold">{money(i.price * i.qty)}</span>
+                  <span className="shrink-0 text-sm font-semibold tabular-nums">{money(i.price * i.qty)}</span>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-5 border-t border-brand-200 pt-4">
-              <label className="text-sm font-medium">Coupon code</label>
-              <div className="mt-1 flex gap-2">
+            <div className="mt-5 border-t border-line pt-4">
+              <label htmlFor="co-coupon" className="label">
+                Coupon code
+              </label>
+              <div className="flex gap-2">
                 <input
+                  id="co-coupon"
                   value={coupon}
                   onChange={(e) => setCoupon(e.target.value.toUpperCase())}
                   placeholder="ANGAD10"
-                  className="flex-1 rounded-lg border border-brand-200 px-3 py-2.5 text-sm uppercase"
+                  className="field flex-1 uppercase"
                 />
                 <button
                   type="button"
                   onClick={applyCouponCode}
                   disabled={couponBusy}
-                  className="rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white hover:bg-brand-800 disabled:opacity-50"
+                  className="btn btn-secondary shrink-0"
                 >
                   {couponBusy ? "…" : "Apply"}
                 </button>
               </div>
               {couponMsg && (
-                <p className={`mt-2 text-xs ${couponMsg.ok ? "text-brand-700" : "text-red-600"}`}>{couponMsg.text}</p>
+                <p
+                  className={`mt-2 flex items-start gap-1.5 text-xs leading-relaxed ${
+                    couponMsg.ok ? "text-brand-700" : "text-red-600"
+                  }`}
+                >
+                  <Icon name={couponMsg.ok ? "check-circle" : "close"} size={13} className="mt-px" />
+                  {couponMsg.text}
+                </p>
               )}
             </div>
 
-            <dl className="mt-5 space-y-2.5 border-t border-brand-200 pt-4 text-sm">
+            <dl className="mt-5 space-y-2.5 border-t border-line pt-4 text-sm">
               <div className="flex justify-between">
-                <dt className="text-ink/60">Subtotal</dt>
-                <dd>{money(subtotal)}</dd>
+                <dt className="text-ink/55">Subtotal</dt>
+                <dd className="tabular-nums">{money(subtotal)}</dd>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-brand-700">
                   <dt>Discount ({applied?.code})</dt>
-                  <dd>− {money(discount)}</dd>
+                  <dd className="tabular-nums">− {money(discount)}</dd>
                 </div>
               )}
               <div className="flex justify-between">
-                <dt className="text-ink/60">Shipping</dt>
-                <dd>{shipping === 0 ? "FREE" : money(shipping)}</dd>
+                <dt className="text-ink/55">Shipping</dt>
+                <dd className={`tabular-nums ${shipping === 0 ? "text-brand-600" : ""}`}>
+                  {shipping === 0 ? "Free" : money(shipping)}
+                </dd>
               </div>
-              <div className="flex justify-between border-t border-brand-200 pt-3 text-base font-bold">
+              <div className="flex justify-between border-t border-line pt-3 text-base font-bold">
                 <dt>Total</dt>
-                <dd className="text-brand-700">{money(total)}</dd>
+                <dd className="tabular-nums text-brand-700">{money(total)}</dd>
               </div>
             </dl>
 
-            {error && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+            {error && (
+              <p className="mt-4 flex items-start gap-2 rounded-xl bg-red-50 p-3 text-sm leading-relaxed text-red-700">
+                <Icon name="close" size={15} className="mt-0.5" />
+                {error}
+              </p>
+            )}
 
-            <button
-              type="submit"
-              disabled={busy}
-              className="mt-5 w-full rounded-full bg-brand-600 py-3.5 font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
-            >
+            <button type="submit" disabled={busy} className="btn btn-primary btn-lg btn-block mt-5">
               {busy ? "Processing…" : method === "cod" ? `Place COD order · ${money(total)}` : `Pay ${money(total)}`}
             </button>
 
-            <p className="mt-3 text-center text-xs text-ink/55">
-              🔒 Secure checkout · {SITE.replacementDays}-day replacement
+            <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-ink/50">
+              <Icon name="lock" size={13} />
+              Secure checkout · {SITE.replacementDays}-day replacement
             </p>
           </aside>
         </form>

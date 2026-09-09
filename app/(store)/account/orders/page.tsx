@@ -47,7 +47,7 @@ export default async function MyOrdersPage() {
             <p className="text-ink/60">You have not placed an order yet.</p>
             <Link
               href="/products"
-              className="mt-5 inline-block rounded-full bg-brand-600 px-8 py-3 font-semibold text-white hover:bg-brand-700"
+              className="btn btn-primary mt-5"
             >
               Start shopping
             </Link>
@@ -55,7 +55,7 @@ export default async function MyOrdersPage() {
         ) : (
           <div className="mt-8 space-y-4">
             {orders.map((o) => (
-              <article key={o.id} className="rounded-2xl border border-brand-100 p-5">
+              <article key={o.id} className="rounded-card border border-line p-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="font-mono font-semibold text-brand-800">{o.order_no}</p>

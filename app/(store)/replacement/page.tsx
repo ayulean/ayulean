@@ -29,7 +29,7 @@ export default function ReplacementPage({ searchParams }: PageProps<"/replacemen
           </Suspense>
         </div>
 
-        <div className="mt-8 rounded-2xl border border-brand-100 p-6">
+        <div className="mt-8 rounded-card border border-line p-6">
           <h2 className="font-display text-lg font-bold text-brand-800">What happens next</h2>
           <ol className="mt-3 space-y-2.5 text-sm leading-relaxed text-ink/70">
             {[

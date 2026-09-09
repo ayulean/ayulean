@@ -32,7 +32,7 @@ export function GoogleButton({ next = "/account" }: { next?: string }) {
         type="button"
         onClick={signIn}
         disabled={busy}
-        className="flex w-full items-center justify-center gap-3 rounded-full border border-brand-200 bg-white px-6 py-3 font-semibold text-ink/80 transition hover:bg-brand-50 disabled:opacity-50"
+        className="btn btn-secondary btn-lg btn-block text-ink/80"
       >
         <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
           <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z" />

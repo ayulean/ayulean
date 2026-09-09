@@ -7,6 +7,7 @@ import { money } from "@/lib/pricing";
 import ReplacementStatusCard from "@/components/ReplacementStatusCard";
 import { getOrderByNo, getReplacementForOrder } from "@/lib/queries";
 import { SITE } from "@/lib/site";
+import Icon from "@/components/Icon";
 
 export const metadata: Metadata = { title: "Track Order" };
 
@@ -83,7 +84,7 @@ async function Lookup({ searchParams }: Pick<PageProps<"/track">, "searchParams"
         )}
 
         {matched && (
-          <div className="mt-8 rounded-2xl border border-brand-100 p-6">
+          <div className="mt-8 rounded-card border border-line p-6">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="font-display text-xl font-bold text-brand-800">{matched.order_no}</h2>
               <span className="rounded-full bg-brand-100 px-3 py-1 text-sm font-semibold text-brand-700">
@@ -108,7 +109,7 @@ async function Lookup({ searchParams }: Pick<PageProps<"/track">, "searchParams"
                             done ? "bg-brand-600 text-white" : "bg-brand-100 text-brand-400"
                           }`}
                         >
-                          {done ? "✓" : idx + 1}
+                          {done ? <Icon name="check" size={15} strokeWidth={3} /> : idx + 1}
                         </span>
                         <span className="mt-2 text-xs capitalize text-ink/60">{s}</span>
                       </div>
@@ -121,7 +122,7 @@ async function Lookup({ searchParams }: Pick<PageProps<"/track">, "searchParams"
               </ol>
             )}
 
-            <ul className="mt-6 divide-y divide-brand-100">
+            <ul className="mt-6 divide-y divide-line">
               {matched.items.map((i) => (
                 <li key={i.productId} className="flex justify-between py-3 text-sm">
                   <span>{i.name} × {i.qty}</span>
@@ -155,7 +156,7 @@ async function Lookup({ searchParams }: Pick<PageProps<"/track">, "searchParams"
                 href={`https://wa.me/${SITE.phoneRaw}?text=${encodeURIComponent(`Hi ${SITE.name}, my order number is ${matched.order_no}.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+                className="btn btn-primary btn-sm"
               >
                 Get help on WhatsApp
               </a>

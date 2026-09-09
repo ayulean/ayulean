@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { money } from "@/lib/pricing";
 import { trackAddToCart, trackBeginCheckout } from "@/lib/track";
 import type { Product } from "@/lib/types";
+import Icon from "./Icon";
 import { useCart } from "./CartProvider";
 
 export function AddToCart({ product }: { product: Product }) {
@@ -13,6 +14,7 @@ export function AddToCart({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const out = product.available <= 0;
+  const max = Math.min(10, product.available);
 
   // Once the real buttons scroll away, a compact bar takes over at the bottom
   // of the screen so ordering is always one tap away on a phone.
@@ -51,36 +53,38 @@ export function AddToCart({ product }: { product: Product }) {
     router.push("/checkout");
   };
 
-  const stepper = (
-    <div className="inline-flex items-center rounded-full border border-brand-200 transition-colors focus-within:border-brand-400">
-      <button
-        type="button"
-        aria-label="Decrease quantity"
-        onClick={() => setQty((q) => Math.max(1, q - 1))}
-        className="h-11 w-11 rounded-l-full text-lg font-bold text-brand-700 transition-colors hover:bg-brand-50 active:bg-brand-100"
-      >
-        −
-      </button>
-      {/* Re-keyed on every change so the new number counts in. */}
-      <span key={qty} className="anim-scale-in w-10 text-center font-semibold" aria-live="polite">
-        {qty}
-      </span>
-      <button
-        type="button"
-        aria-label="Increase quantity"
-        onClick={() => setQty((q) => Math.min(Math.min(10, product.available), q + 1))}
-        className="h-11 w-11 rounded-r-full text-lg font-bold text-brand-700 transition-colors hover:bg-brand-50 active:bg-brand-100"
-      >
-        +
-      </button>
-    </div>
-  );
-
   return (
     <div className="mt-6" ref={anchor}>
-      <div className="flex flex-wrap items-center gap-4">
-        {stepper}
-        <span className="text-sm text-ink/60">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+        <div className="inline-flex items-center rounded-full border border-line-strong transition-colors focus-within:border-brand-400">
+          <button
+            type="button"
+            aria-label="Decrease quantity"
+            disabled={qty <= 1}
+            onClick={() => setQty((q) => Math.max(1, q - 1))}
+            className="flex h-11 w-11 items-center justify-center rounded-l-full text-brand-700 transition-colors hover:bg-brand-50 disabled:opacity-30"
+          >
+            <Icon name="minus" size={16} />
+          </button>
+          {/* Re-keyed on every change so the new number counts in. */}
+          <span key={qty} className="anim-scale-in w-10 text-center font-semibold tabular-nums" aria-live="polite">
+            {qty}
+          </span>
+          <button
+            type="button"
+            aria-label="Increase quantity"
+            disabled={qty >= max}
+            onClick={() => setQty((q) => Math.min(max, q + 1))}
+            className="flex h-11 w-11 items-center justify-center rounded-r-full text-brand-700 transition-colors hover:bg-brand-50 disabled:opacity-30"
+          >
+            <Icon name="plus" size={16} />
+          </button>
+        </div>
+
+        <span
+          className={`inline-flex items-center gap-1.5 text-sm ${out ? "text-red-600" : "text-ink/55"}`}
+        >
+          {!out && <span className="h-1.5 w-1.5 rounded-full bg-brand-500" aria-hidden="true" />}
           {out
             ? "Currently out of stock"
             : product.isBundle
@@ -94,46 +98,37 @@ export function AddToCart({ product }: { product: Product }) {
           type="button"
           disabled={out}
           onClick={addToCart}
-          className={`flex-1 overflow-hidden rounded-full border-2 px-6 py-3.5 font-semibold transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40 ${
-            added
-              ? "border-brand-600 bg-brand-600 text-white"
-              : "border-brand-600 text-brand-700 hover:-translate-y-0.5 hover:bg-brand-50 hover:shadow-md"
-          }`}
+          className={`btn btn-lg flex-1 ${added ? "btn-primary" : "btn-secondary"}`}
         >
-          <span key={added ? "yes" : "no"} className="anim-fade-in inline-block">
-            {added ? "✓ Added to cart" : "Add to Cart"}
+          <span key={added ? "yes" : "no"} className="anim-fade-in inline-flex items-center gap-2">
+            {added && <Icon name="check" size={17} />}
+            {added ? "Added to cart" : "Add to cart"}
           </span>
         </button>
-        <button
-          type="button"
-          disabled={out}
-          onClick={buyNow}
-          className="flex-1 rounded-full bg-brand-600 px-6 py-3.5 font-semibold text-white shadow-md shadow-brand-600/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-lg hover:shadow-brand-600/30 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
-        >
-          Buy Now
+        <button type="button" disabled={out} onClick={buyNow} className="btn btn-primary btn-lg flex-1">
+          Buy now
         </button>
       </div>
 
       {showBar && (
-        <div className="anim-fade-up fixed inset-x-0 bottom-0 z-40 border-t border-brand-100 bg-white/95 p-3 shadow-[0_-4px_20px_rgba(27,35,24,0.08)] backdrop-blur lg:hidden print:hidden">
-          <div className="container-x flex items-center gap-3">
+        <div className="anim-fade-up fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden print:hidden">
+          <div className="container-x flex items-center gap-3 py-2.5">
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-brand-800">{product.name}</p>
-              <p className="text-lg font-bold leading-tight text-brand-700">{money(product.price)}</p>
+              <p className="truncate text-[0.8125rem] font-medium text-ink/60">{product.name}</p>
+              <p className="text-lg font-bold leading-tight tracking-tight text-brand-700">
+                {money(product.price * qty)}
+              </p>
             </div>
             <button
               type="button"
               onClick={addToCart}
-              className="shrink-0 rounded-full border-2 border-brand-600 px-4 py-2.5 text-sm font-semibold text-brand-700"
+              aria-label="Add to cart"
+              className="btn btn-secondary btn-sm shrink-0"
             >
-              {added ? "✓" : "Add"}
+              {added ? <Icon name="check" size={16} /> : "Add"}
             </button>
-            <button
-              type="button"
-              onClick={buyNow}
-              className="shrink-0 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white"
-            >
-              Buy Now
+            <button type="button" onClick={buyNow} className="btn btn-primary shrink-0">
+              Buy now
             </button>
           </div>
         </div>

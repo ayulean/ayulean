@@ -16,7 +16,7 @@ export function ProductGallery({
   const [active, setActive] = useState(0);
 
   const frame = (
-    <div className="group relative aspect-square overflow-hidden rounded-3xl border border-brand-100 bg-brand-50">
+    <div className="group relative aspect-square overflow-hidden rounded-panel border border-line bg-surface-muted">
       {/* Re-keyed so each thumbnail swap fades the new photo in. */}
       <Image
         key={active}
@@ -41,7 +41,7 @@ export function ProductGallery({
       )}
 
       {list.length > 1 && (
-        <div className="mt-4 flex gap-3">
+        <div className="scroll-x mt-3 flex gap-2.5 pb-1">
           {list.map((src, i) => (
             <button
               key={`${src}-${i}`}
@@ -49,10 +49,10 @@ export function ProductGallery({
               onClick={() => setActive(i)}
               aria-label={`Image ${i + 1}`}
               aria-current={i === active}
-              className={`relative h-20 w-20 overflow-hidden rounded-xl border-2 transition-all duration-300 ease-out hover:-translate-y-0.5 ${
+              className={`relative h-18 w-18 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-300 ease-out ${
                 i === active
-                  ? "border-brand-500 shadow-md shadow-brand-600/20"
-                  : "border-brand-100 opacity-70 hover:border-brand-300 hover:opacity-100"
+                  ? "border-brand-500"
+                  : "border-line opacity-65 hover:border-brand-300 hover:opacity-100"
               }`}
             >
               <Image src={src} alt="" fill sizes="80px" className="object-cover" />

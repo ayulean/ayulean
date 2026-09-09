@@ -1,8 +1,12 @@
+import Icon from "../Icon";
+
 export function AccountsDisabled() {
   return (
     <div className="container-x py-20">
-      <div className="mx-auto max-w-lg rounded-2xl border border-brand-100 bg-cream p-8 text-center">
-        <p className="text-4xl" aria-hidden="true">🔐</p>
+      <div className="mx-auto max-w-lg rounded-card border border-line bg-surface-muted p-8 text-center">
+        <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-brand-500">
+          <Icon name="lock" size={22} />
+        </span>
         <h1 className="mt-4 font-display text-2xl font-bold text-brand-800">Accounts are not set up yet</h1>
         <p className="mt-3 text-sm leading-relaxed text-ink/65">
           Customer sign-in needs the public Supabase key. Add{" "}

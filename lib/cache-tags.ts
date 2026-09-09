@@ -6,6 +6,11 @@
  * tables must expire the matching tag — `updateTag` from a Server Action so the
  * admin sees the change on the very next request, `revalidateTag(tag, "max")`
  * from a Route Handler.
+ *
+ * Because every write path is tagged, these entries are held for days rather
+ * than hours: the long life keeps a cold serverless instance from paying a
+ * fresh round trip to Supabase, and a tag expiry is what actually refreshes
+ * them, not the clock.
  */
 export const CACHE_TAGS = {
   /** Product rows, stock and the stats view derived from them. */

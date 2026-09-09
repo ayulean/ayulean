@@ -1,5 +1,6 @@
 "use client";
 
+import Icon from "./Icon";
 import { useWishlist, type WishlistItem } from "./WishlistProvider";
 
 export function WishlistButton({
@@ -18,11 +19,13 @@ export function WishlistButton({
         type="button"
         onClick={() => toggle(item)}
         aria-pressed={saved}
-        className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-ink/65 hover:text-brand-700"
+        className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-ink/60 transition-colors hover:text-brand-700"
       >
-        <span aria-hidden="true" className={saved ? "text-red-500" : ""}>
-          {saved ? "♥" : "♡"}
-        </span>
+        <Icon
+          name="heart"
+          size={17}
+          className={saved ? "fill-red-500 text-red-500" : "text-ink/40"}
+        />
         {saved ? "Saved to wishlist" : "Save to wishlist"}
       </button>
     );
@@ -34,11 +37,13 @@ export function WishlistButton({
       onClick={() => toggle(item)}
       aria-label={saved ? `Remove ${item.name} from wishlist` : `Save ${item.name} to wishlist`}
       aria-pressed={saved}
-      className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-lg shadow-sm backdrop-blur transition hover:bg-white"
+      className="absolute right-2.5 top-2.5 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-soft backdrop-blur transition-colors hover:bg-white"
     >
-      <span aria-hidden="true" className={saved ? "text-red-500" : "text-ink/35"}>
-        {saved ? "♥" : "♡"}
-      </span>
+      <Icon
+        name="heart"
+        size={16}
+        className={saved ? "fill-red-500 text-red-500" : "text-ink/35"}
+      />
     </button>
   );
 }

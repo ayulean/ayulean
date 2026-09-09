@@ -8,7 +8,7 @@ import { SITE } from "@/lib/site";
 export function SetupNotice() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-50 p-4">
-      <div className="w-full max-w-xl rounded-2xl border border-brand-100 bg-white p-8 shadow-lg">
+      <div className="w-full max-w-xl rounded-card border border-line bg-white p-8 shadow-lg">
         <div className="flex items-center gap-3">
           <Image
             src={SITE.logo}
@@ -56,7 +56,7 @@ export function SetupNotice() {
           </li>
         </ol>
 
-        <p className="mt-6 rounded-lg bg-cream p-3 text-xs leading-relaxed text-ink/60">
+        <p className="mt-6 rounded-lg bg-surface-muted p-3 text-xs leading-relaxed text-ink/60">
           The service_role key is used only on the server and is never sent to the browser. Keep it out of any file
           that gets committed.
         </p>

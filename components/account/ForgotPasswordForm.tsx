@@ -61,7 +61,7 @@ export function ForgotPasswordForm() {
       <button
         type="submit"
         disabled={busy}
-        className="w-full rounded-full bg-brand-600 py-3.5 font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+        className="btn btn-primary btn-lg btn-block"
       >
         {busy ? "Sending…" : "Send reset link"}
       </button>

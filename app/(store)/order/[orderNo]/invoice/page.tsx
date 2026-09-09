@@ -30,7 +30,7 @@ export default async function CustomerInvoicePage({ params, searchParams }: Page
   if (!mayAccessOrder(order, { userId: user?.id, phone })) {
     return (
       <div className="container-x py-20">
-        <div className="mx-auto max-w-md rounded-2xl border border-brand-100 bg-cream p-8 text-center">
+        <div className="mx-auto max-w-md rounded-card border border-line bg-surface-muted p-8 text-center">
           <h1 className="font-display text-2xl font-bold text-brand-800">Invoice not available</h1>
           <p className="mt-3 text-sm leading-relaxed text-ink/65">
             To open this invoice, either log in to the account the order was placed with, or open it from the
@@ -39,13 +39,13 @@ export default async function CustomerInvoicePage({ params, searchParams }: Page
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link
               href="/account/login"
-              className="rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+              className="btn btn-primary btn-sm"
             >
               Log in
             </Link>
             <Link
               href="/track"
-              className="rounded-full border border-brand-300 px-6 py-2.5 text-sm font-semibold text-brand-700 hover:bg-brand-50"
+              className="btn btn-secondary btn-sm"
             >
               Track order
             </Link>

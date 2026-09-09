@@ -4,7 +4,7 @@ export const SITE = {
   logo: "/img/angad-logo.jpeg",
   phone: "+91 7082042004",
   phoneRaw: "917082042004",
-  email: "ayuleanveda@gmail.com",
+  email: "info@angadayurveda.com",
   address: "Sector 13, Karnal, Haryana 132001, India",
   addressShort: "Sector 13, Karnal, Haryana",
   replacementDays: 7,

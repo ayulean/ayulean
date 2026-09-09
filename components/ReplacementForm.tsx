@@ -37,10 +37,10 @@ export function ReplacementForm({ defaultOrderNo = "" }: { defaultOrderNo?: stri
     setMsg({ ok: true, text: json.message });
   }
 
-  const field = "mt-1 w-full rounded-lg border border-brand-200 px-3 py-2.5 focus:border-brand-500 focus:outline-none";
+  const field = "field mt-1";
 
   return (
-    <form onSubmit={onSubmit} className="rounded-2xl border border-brand-100 bg-cream p-6">
+    <form onSubmit={onSubmit} className="rounded-card border border-line bg-surface-muted p-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="text-sm font-medium">
           Order number *
@@ -82,7 +82,7 @@ export function ReplacementForm({ defaultOrderNo = "" }: { defaultOrderNo?: stri
       <button
         type="submit"
         disabled={busy}
-        className="mt-5 rounded-full bg-brand-600 px-8 py-3 font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+        className="btn btn-primary mt-5"
       >
         {busy ? "Submitting…" : "Submit request"}
       </button>
