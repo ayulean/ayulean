@@ -73,6 +73,7 @@ Set these in `.env.local` (already created) — `.env.example` is the reference:
 | `ADMIN_SECRET` | Signs the admin session cookie — use a long random string in production |
 | `RAZORPAY_KEY_ID` | Razorpay Key ID (for online payment) |
 | `RAZORPAY_KEY_SECRET` | Razorpay Key Secret |
+| `RAZORPAY_WEBHOOK_SECRET` | Shared secret for the payment webhook — see 4f. Empty = webhooks are rejected |
 | `RESEND_API_KEY` | Resend key for order emails. Empty = emails are only logged |
 | `ORDER_FROM_EMAIL` | Sender address — **must be on a domain verified in Resend** |
 | `ORDER_REPLY_TO` | Where customer replies go — a Gmail address is fine here |
@@ -384,6 +385,52 @@ under the Drugs and Magic Remedies Act and the CCPA advertising rules, quite apa
 
 ---
 
+## 4f. How a payment is confirmed (and the webhook)
+
+An online order is written to the database as `pending_payment` **before** the customer sees the
+Razorpay popup, and only becomes `paid` once the payment is confirmed. Two independent routes can
+confirm it:
+
+| Route | Who calls it | Why it exists |
+| --- | --- | --- |
+| `/api/payments/verify` | The customer's browser, from the Razorpay checkout handler | The fast path — the customer is waiting on the thank-you page |
+| `/api/payments/webhook` | Razorpay, server to server | The browser is not a reliable messenger: a closed tab, a dead battery or a UPI app that never returns would otherwise leave a paid order stuck at `pending_payment` |
+
+Both call `markOrderPaid` in [`lib/payments.ts`](lib/payments.ts), which flips the order with a
+single conditional `UPDATE ... WHERE payment_status <> 'paid'`. Only the caller that actually
+changes the row goes on to reserve stock and send the emails, so whichever one arrives first wins
+and the second is a harmless no-op. Razorpay retries a webhook for 24 hours until it gets a 2xx,
+which is why the route answers 200 even for events it has nothing to do with — a 500 is reserved for
+failures that are genuinely worth retrying.
+
+### Setting the webhook up
+
+1. Put a long random string in `RAZORPAY_WEBHOOK_SECRET`. You invent this one; it is not issued by
+   Razorpay. Generate it with:
+   `node -e "console.log(require('crypto').randomBytes(24).toString('base64url'))"`
+2. dashboard.razorpay.com → **Settings → Webhooks → Add New Webhook**
+   - URL: `https://your-domain.com/api/payments/webhook`
+   - Secret: the exact same string
+   - Events: `payment.captured`, `payment.failed`, `order.paid`
+3. Do this **twice** — Test Mode and Live Mode keep separate webhooks. The secret can be the same.
+
+The URL has to be reachable from the internet, so a webhook cannot point at `localhost`. To exercise
+it while developing, either expose the dev server with a tunnel (`ngrok http 3000`) and register that
+URL, or post a signed payload by hand:
+
+```bash
+SECRET=$(grep '^RAZORPAY_WEBHOOK_SECRET=' .env.local | cut -d= -f2)
+BODY='{"event":"payment.captured","payload":{"payment":{"entity":{"id":"pay_TEST","order_id":"order_TEST"}}}}'
+SIG=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "$SECRET" -hex | sed 's/.*= //')
+curl -X POST http://localhost:3000/api/payments/webhook \
+  -H "Content-Type: application/json" -H "x-razorpay-signature: $SIG" -d "$BODY"
+```
+
+An unsigned or wrongly signed call is rejected with a 400 — without the signature check anyone who
+knew the URL could mark any order as paid.
+
+---
+
 ## 5. How the money is calculated
 
 - Shipping: free above ₹499, otherwise ₹49 (change this in `lib/site.ts`).
@@ -413,6 +460,8 @@ lib/supabase.ts    → server-side Supabase client
 lib/queries.ts     → all read queries
 lib/actions.ts     → admin server actions
 lib/notify.ts      → order emails (Resend)
+lib/razorpay.ts    → gateway client + signature verification
+lib/payments.ts    → marking an order paid or failed, once, from either route
 lib/storage.ts     → product image uploads (Supabase Storage)
 lib/ratelimit.ts   → Postgres-backed rate limiting
 tests/             → vitest unit tests (npm test)
@@ -438,6 +487,7 @@ Because the data lives in Supabase, this app deploys cleanly to Vercel, Railway,
 Set the same environment variables on your host, then make sure you:
 - Change `ADMIN_PASSWORD` and generate a long random `ADMIN_SECRET`.
 - Add your **live** Razorpay keys.
+- Register the Live Mode webhook against your real domain and set `RAZORPAY_WEBHOOK_SECRET` (see 4f).
 - Update the support email in `lib/site.ts` (currently the placeholder `support@ayulean.in`).
 - Set `NEXT_PUBLIC_SITE_URL` to your real domain so the sitemap and OG tags are correct.
 - Turn on Point-in-Time Recovery or scheduled backups in Supabase (free projects also pause after a

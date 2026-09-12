@@ -1,11 +1,13 @@
-import { revalidateTag } from "next/cache";
-import { CACHE_TAGS } from "@/lib/cache-tags";
-import { sendOrderAlert, sendOrderConfirmation } from "@/lib/notify";
-import { reserveOrderStock } from "@/lib/orders";
+import { markOrderPaid, markOrderPaymentFailed } from "@/lib/payments";
 import { getOrderByNo } from "@/lib/queries";
 import { verifySignature } from "@/lib/razorpay";
-import { db } from "@/lib/supabase";
 
+/**
+ * The browser's report of a successful payment, sent from the Razorpay checkout
+ * handler. It is the fast path — the customer is waiting on the thank-you page.
+ * `/api/payments/webhook` covers the same ground for a browser that never came
+ * back, and the two are safe to run against the same order.
+ */
 export async function POST(req: Request) {
   let body: Record<string, string>;
   try {
@@ -25,31 +27,15 @@ export async function POST(req: Request) {
     return Response.json({ error: "Order mismatch." }, { status: 400 });
 
   if (!verifySignature(razorpay_order_id, razorpay_payment_id, razorpay_signature)) {
-    await db().from("orders").update({ payment_status: "failed" }).eq("order_no", orderNo);
+    await markOrderPaymentFailed(orderNo);
     return Response.json({ error: "We could not verify this payment." }, { status: 400 });
   }
 
-  // The `neq` makes this a single conditional UPDATE, so if two verify calls
-  // race (browser handler + a retry), only one of them flips the order to paid
-  // and only that one reserves stock.
-  const { data: updated, error } = await db()
-    .from("orders")
-    .update({ payment_status: "paid", status: "placed", razorpay_payment_id })
-    .eq("order_no", orderNo)
-    .neq("payment_status", "paid")
-    .select("id");
-
-  if (error) {
-    console.error("Order update failed", error);
+  try {
+    await markOrderPaid(orderNo, razorpay_payment_id);
+  } catch (err) {
+    console.error("Order update failed", err);
     return Response.json({ error: "We could not confirm this payment." }, { status: 500 });
-  }
-
-  if (updated && updated.length > 0) {
-    await reserveOrderStock(orderNo);
-    revalidateTag(CACHE_TAGS.products, "max");
-
-    const saved = await getOrderByNo(orderNo);
-    if (saved) void Promise.all([sendOrderConfirmation(saved), sendOrderAlert(saved)]);
   }
 
   return Response.json({ ok: true, orderNo });
