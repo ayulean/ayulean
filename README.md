@@ -106,7 +106,7 @@ automatically runs in **COD-only mode** (checkout shows only Cash on Delivery).
 | `/account/forgot-password` | Sends a password reset link |
 | `/wishlist` | Saved products (kept in the browser) |
 | `/replacement` | 7-day replacement request form |
-| `/about`, `/contact` | Brand info and contact (Sector 13 Karnal, +91 7082042004) |
+| `/about`, `/contact` | Brand info and contact (Dhakwala, Karnal, +91 7082042004) |
 | `/policies/replacement` | 7-Day Replacement Policy |
 | `/policies/shipping`, `/policies/privacy`, `/policies/terms` | Other policies |
 

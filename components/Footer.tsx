@@ -55,9 +55,9 @@ export async function Footer() {
             <Image
               src={SITE.logo}
               alt=""
-              width={40}
-              height={40}
-              className="h-10 w-10 rounded-full object-cover ring-1 ring-line"
+              width={56}
+              height={56}
+              className="h-14 w-14 rounded-full object-cover ring-1 ring-line"
             />
             <span className="font-display text-xl font-bold text-brand-800">{SITE.name}</span>
           </div>
@@ -69,9 +69,10 @@ export async function Footer() {
             {SITE.address}
           </address>
 
-          {(COMPLIANCE.fssai || COMPLIANCE.ayushLicence || SITE.gstin) && (
+          {(COMPLIANCE.udyam || COMPLIANCE.fssai || COMPLIANCE.ayushLicence || SITE.gstin) && (
             <dl className="mt-4 space-y-1 text-xs text-ink/45">
-              {COMPLIANCE.fssai && <div>FSSAI Lic. No. {COMPLIANCE.fssai}</div>}
+              {COMPLIANCE.udyam && <div>UDYAM Registration No. {COMPLIANCE.udyam}</div>}
+              {COMPLIANCE.fssai && <div>FSSAI Reg. No. {COMPLIANCE.fssai}</div>}
               {COMPLIANCE.ayushLicence && <div>AYUSH Lic. No. {COMPLIANCE.ayushLicence}</div>}
               {SITE.gstin && <div>GSTIN {SITE.gstin}</div>}
             </dl>

@@ -64,8 +64,8 @@ export default function ContactPage() {
 
         <div className="mt-8 overflow-hidden rounded-card border border-line">
           <iframe
-            title="Angad Ayurveda location — Sector 13, Karnal"
-            src="https://maps.google.com/maps?q=Sector%2013%20Karnal%20Haryana&t=&z=14&ie=UTF8&iwloc=&output=embed"
+            title="Angad Ayurveda location — Dhakwala, Karnal"
+            src="https://maps.google.com/maps?q=Dhakwala%20Karnal%20Haryana%20132001&t=&z=14&ie=UTF8&iwloc=&output=embed"
             className="h-72 w-full border-0 sm:h-80"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"

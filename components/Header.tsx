@@ -164,17 +164,17 @@ export function Header({ accountBar, accountMenu }: { accountBar: ReactNode; acc
       >
         <div
           className={`container-x flex items-center justify-between gap-3 transition-[height] duration-300 ${
-            scrolled ? "h-14" : "h-16"
+            scrolled ? "h-16" : "h-20"
           }`}
         >
           <Link href="/" className="group flex min-w-0 items-center gap-2.5">
             <Image
               src={SITE.logo}
               alt=""
-              width={44}
-              height={44}
+              width={64}
+              height={64}
               className={`rounded-full object-cover ring-1 ring-line transition-all duration-300 group-hover:ring-brand-300 ${
-                scrolled ? "h-9 w-9" : "h-10 w-10"
+                scrolled ? "h-12 w-12" : "h-14 w-14"
               }`}
               priority
             />

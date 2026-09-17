@@ -5,8 +5,8 @@ export const SITE = {
   phone: "+91 7082042004",
   phoneRaw: "917082042004",
   email: "info@angadayurveda.com",
-  address: "Sector 13, Karnal, Haryana 132001, India",
-  addressShort: "Sector 13, Karnal, Haryana",
+  address: "DHAKWALA, Dhakwala (121), Karnal, Karnal, Haryana - 132001",
+  addressShort: "Dhakwala, Karnal, Haryana",
   replacementDays: 7,
   freeShippingAbove: 499,
   shippingFee: 49,
@@ -30,8 +30,10 @@ export const SITE = {
 export const COMPLIANCE = {
   /** Registered legal entity, e.g. "Angad Ayurveda Pvt. Ltd." or the proprietor's name. */
   legalName: process.env.NEXT_PUBLIC_LEGAL_NAME ?? "",
-  /** 14-digit FSSAI licence number of the seller/marketer. */
-  fssai: process.env.NEXT_PUBLIC_FSSAI ?? "",
+  /** MSME Udyam registration number. */
+  udyam: process.env.NEXT_PUBLIC_UDYAM || "UDYAM-HR-10-0112817",
+  /** 14-digit FSSAI registration/licence number from the issued certificate (not the application reference no.). */
+  fssai: process.env.NEXT_PUBLIC_FSSAI || "20826010002140",
   /** AYUSH / State Drug Controller Ayurvedic manufacturing licence number. */
   ayushLicence: process.env.NEXT_PUBLIC_AYUSH_LICENCE ?? "",
   /** Manufacturer name and full address, as printed on the label. */
@@ -47,7 +49,8 @@ export function complianceRows(): Array<{ label: string; value: string }> {
   const rows: Array<{ label: string; value: string }> = [
     { label: "Sold & marketed by", value: COMPLIANCE.legalName || SITE.name },
     { label: "Registered address", value: SITE.address },
-    { label: "FSSAI licence no.", value: COMPLIANCE.fssai },
+    { label: "UDYAM registration no.", value: COMPLIANCE.udyam },
+    { label: "FSSAI registration no.", value: COMPLIANCE.fssai },
     { label: "AYUSH licence no.", value: COMPLIANCE.ayushLicence },
     { label: "GSTIN", value: SITE.gstin },
     { label: "Manufactured by", value: COMPLIANCE.manufacturer },
